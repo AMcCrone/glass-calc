@@ -183,75 +183,64 @@ if st.button("Calculate Design Strength for All Load Cases"):
     # st.pyplot(fig)
 
 
-st.title("SentryGlas® Relaxation Modulus 3D Plot")
+st.title("Interlayer Relaxation Modulus 3D Plot")
 
 # -----------------------------------------------------
-# 1) Define time labels and their numeric values (seconds)
-#    in ascending order for correct log-scale placement.
+# 1. Define the load duration mapping and axis ticks
 # -----------------------------------------------------
 time_list = [
-    ("1 sec",      1),
-    ("3 sec",      3),
-    ("5 sec",      5),
-    ("10 sec",     10),
-    ("30 sec",     30),
-    ("1 min",      60),
-    ("5 min",      300),
-    ("10 min",     600),
-    ("30 min",     1800),
-    ("1 hour",     3600),
-    ("6 hours",    21600),
-    ("12 hours",   43200),
-    ("1 day",      86400),
-    ("2 days",     172800),
-    ("5 days",     432000),
-    ("1 week",     604800),
-    ("3 weeks",    1814400),
-    ("1 month",    2592000),
-    ("1 year",     31536000),
-    ("10 years",   315360000),
-    ("50 years",   1576800000)
+    ("1 sec", 1),
+    ("3 sec", 3),
+    ("5 sec", 5),
+    ("10 sec", 10),
+    ("30 sec", 30),
+    ("1 min", 60),
+    ("5 min", 300),
+    ("10 min", 600),
+    ("30 min", 1800),
+    ("1 hour", 3600),
+    ("6 hours", 21600),
+    ("12 hours", 43200),
+    ("1 day", 86400),
+    ("2 days", 172800),
+    ("5 days", 432000),
+    ("1 week", 604800),
+    ("3 weeks", 1814400),
+    ("1 month", 2592000),
+    ("1 year", 31536000),
+    ("10 years", 315360000),
+    ("50 years", 1576800000)
 ]
 
-# Create a dictionary for quick label -> seconds mapping.
 time_map = {label: seconds for label, seconds in time_list}
-
-# Prepare tickvals and ticktext for the x-axis
-tickvals = [seconds for _, seconds in time_list]
-ticktext = [label for label, _ in time_list]
+tickvals = [seconds for label, seconds in time_list]
+ticktext = [label for label, seconds in time_list]
 
 # -----------------------------------------------------
-# 2) Input data from your table (wide format)
+# 2. Create a dropdown for Interlayer selection
 # -----------------------------------------------------
-data = {
-    "Temperature (°C)": [-20,   0,   10,  20,  25,  30,  35,   40,   50,   60,    70,    80],
-    "1 sec":            [838, 749, 693, 629, 511, 443, 338,  229, 108.6, 35.4, 11.31,  4.65],
-    "3 sec":            [835, 743, 681, 612, 485, 413, 302,  187,   78,  24.5,  8.8,   4.0],
-    "5 sec":            [835, 740, 678, 606, 474, 405, 287,  167,  66.3, 20.67, 8.13,  3.66],
-    "10 sec":           [832, 737, 664, 594, 456, 381, 266,  143, 166.5, 51.84, 22.05, 9.99],
-    "30 sec":           [832, 732, 661, 602, 433, 349, 230,  109,   40,  12.8,  6.3,   2.9],
-    "1 min":            [829, 726, 651, 567, 413, 324, 209, 91.6,  33.8, 10.9,  5.64,  2.5],
-    "5 min":            [821, 717, 638, 549, 340, 243, 158,   57,  21.7,   7.6,  4.2,   1.7],
-    "10 min":           [818, 714, 618, 525, 334, 220, 141, 46.9, 18.57,  6.75, 3.45,  1.35],
-    "30 min":           [815, 708, 629, 511, 308, 194, 122,   34,  14.6,   5.5,  2.9,   1.1],
-    "1 hour":           [809, 703, 597, 493, 294, 178, 103, 27.8,  12.6,   5.1,  2.5,   1.0],
-    "6 hours":          [806, 680, 574, 458, 263, 162, 78.2,   17.1,  9.72,  4.26, 1.95, 0.9],
-    "12 hours":         [804, 668, 560, 438, 250, 153, 68.4,   15,    8.94,  4.05, 1.89, 0.9],
-    "1 day":            [801, 665, 553, 428, 234, 146, 60.1,   13.5,  8.4,   3.8,  1.8,  0.8],
-    "2 days":           [798, 654, 543, 406, 206, 105, 48.9,   12.3,  8.01,  3.78, 1.74, 0.87],
-    "5 days":           [795, 648, 516, 380, 177, 72,  36.7,   11,    7.2,   3.6,  1.6,  0.7],
-    "1 week":           [795, 645, 519, 368, 160, 66,  33.8,   10.9,  7.26,  3.54, 1.62, 0.75],
-    "3 weeks":          [792, 639, 498, 336, 131, 38,  24.6,   10,    6.5,   3.3,  1.5,  0.6],
-    "1 month":          [786, 636, 499, 330, 123, 35,  22.1,   9.9,   6.5,   3.3,  1.5,  0.8],
-    "1 year":           [772, 605, 467, 282, 93.3,20.3,14.7,   9.3,   6.3,   3,    1.4,  0.6],
-    "10 years":         [749, 579, 448, 256, 70.6,15,  12.2,   8.84,  6,     2.9,  1.3,  0.5],
-    "50 years":         [720, 559, 421, 223, 52.6,11.9, 9.03,  6.86,  5.46,  2.22, 1.05, 0.48]
-}
-
-df = pd.DataFrame(data)
+interlayer_options = [
+    "SentryGlas", 
+    "SentryGlas Xtra", 
+    "Trosifol Clear - Ultra Clear", 
+    "Trosifol Extra Stiff", 
+    "Trosifol SC Monolayer"
+]
+selected_interlayer = st.selectbox("Select Interlayer:", interlayer_options)
 
 # -----------------------------------------------------
-# 3) Convert wide table into a "long" format
+# 3. Load the Excel file (each sheet is one interlayer)
+# -----------------------------------------------------
+excel_file = "Interlayer_E(t)_Database.xlsx"  # Ensure this file is in your repo/folder
+try:
+    df = pd.read_excel(excel_file, sheet_name=selected_interlayer)
+except Exception as e:
+    st.error(f"Error loading Excel file: {e}")
+    st.stop()
+
+# -----------------------------------------------------
+# 4. Convert wide table into long format
+#    (Assumes first column is "Temperature (°C)" and the rest are load durations)
 # -----------------------------------------------------
 df_melted = df.melt(
     id_vars="Temperature (°C)",
@@ -259,32 +248,35 @@ df_melted = df.melt(
     value_name="E(MPa)"
 )
 
-# -----------------------------------------------------
-# 4) Map time labels to numeric seconds for log scale
-# -----------------------------------------------------
+# Map the load duration strings to numeric seconds
 df_melted["Time_s"] = df_melted["Time"].map(time_map)
 
 # -----------------------------------------------------
-# 5) Add selection boxes for user to pick a Temperature and Load Duration
+# 5. Add selection boxes for Temperature and Load Duration
 # -----------------------------------------------------
 temp_list = sorted(df["Temperature (°C)"].unique())
-temp_option = st.selectbox("Select Temperature (°C):", temp_list)
+selected_temp = st.selectbox("Select Temperature (°C):", temp_list)
 
-time_labels = [t[0] for t in time_list]  # e.g., ["1 sec", "3 sec", ...]
-time_option = st.selectbox("Select Load Duration:", time_labels)
+time_options = list(time_map.keys())
+selected_time = st.selectbox("Select Load Duration:", time_options)
 
-# Find the single row matching user selections
-highlight_row = df_melted[
-    (df_melted["Temperature (°C)"] == temp_option) &
-    (df_melted["Time"] == time_option)
+# Find the data point corresponding to the selected Temperature and Load Duration
+selected_point = df_melted[
+    (df_melted["Temperature (°C)"] == selected_temp) &
+    (df_melted["Time"] == selected_time)
 ]
-highlight_x = highlight_row["Time_s"].values[0] if not highlight_row.empty else None
-highlight_y = temp_option
-highlight_z = highlight_row["E(MPa)"].values[0] if not highlight_row.empty else None
+
+if not selected_point.empty:
+    highlight_x = selected_point["Time_s"].values[0]
+    highlight_y = selected_temp
+    highlight_z = selected_point["E(MPa)"].values[0]
+else:
+    highlight_x, highlight_y, highlight_z = None, None, None
 
 # -----------------------------------------------------
-# 6) Create the main 3D scatter for all data
+# 6. Create the 3D Plotly Scatter Plot
 # -----------------------------------------------------
+# All data trace
 trace_all = go.Scatter3d(
     x=df_melted["Time_s"],
     y=df_melted["Temperature (°C)"],
@@ -299,42 +291,37 @@ trace_all = go.Scatter3d(
     name="All Data"
 )
 
-# -----------------------------------------------------
-# 7) Create a highlight trace for the selected point
-# -----------------------------------------------------
+# Highlight trace for the selected data point
 trace_highlight = go.Scatter3d(
     x=[highlight_x] if highlight_x is not None else [],
-    y=[highlight_y] if highlight_x is not None else [],
-    z=[highlight_z] if highlight_x is not None else [],
+    y=[highlight_y] if highlight_y is not None else [],
+    z=[highlight_z] if highlight_z is not None else [],
     mode='markers',
     marker=dict(
-        size=12,         # Larger marker size
+        size=12,         # Larger marker for emphasis
         color='red',
         symbol='diamond'
     ),
-    name='Selected Point'
+    name="Selected Point"
 )
 
-# -----------------------------------------------------
-# 8) Combine traces and update layout
-# -----------------------------------------------------
+# Combine both traces in a figure
 fig = go.Figure(data=[trace_all, trace_highlight])
-
 fig.update_layout(
     scene=dict(
         xaxis=dict(
-            title='Time',
+            title='Load Duration',
             type='log',
-            tickvals=tickvals,     # numeric values in seconds
-            ticktext=ticktext      # corresponding original labels
+            tickvals=tickvals,     # Use the seconds values
+            ticktext=ticktext      # Original text labels on the axis
         ),
-        yaxis=dict(title='Temperature [°C]'),
+        yaxis=dict(title='Temperature (°C)'),
         zaxis=dict(title='E(t) [MPa]')
     ),
     margin=dict(l=0, r=0, b=0, t=0)
 )
 
 # -----------------------------------------------------
-# 9) Display the plot in Streamlit
+# 7. Display the plot in Streamlit
 # -----------------------------------------------------
 st.plotly_chart(fig, use_container_width=True)
