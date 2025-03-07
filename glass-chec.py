@@ -117,7 +117,7 @@ if glass_category == "basic":
     default_fgk = fbk_value
 else:
     default_fgk = fbk_value * 0.75  # You may adjust this default value as needed.
-fgk_value = st.number_input("Enter design value for glass, $$f_{gk}$$ (N/mm²)", value=default_fgk, step=1.0)
+fgk_value = st.number_input("Enter design value for glass, $$f_{gk}$$ (N/mm²)", value=float(default_fgk), step=1.0)
 
 # Define material partial safety factors:
 # For annealed glass (basic):
