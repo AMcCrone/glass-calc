@@ -166,17 +166,17 @@ if st.button("Calculate Design Strength for All Load Cases"):
     df_results = pd.DataFrame(results)
     st.table(df_results)
 
-    # Plot a graph of loading duration vs. k_mod using the theoretical relation:
-    # k_mod = 0.663 * t^(-1/16)
-    # Here, t (loading duration) is plotted on the x-axis (in seconds).
-    t_values = np.logspace(0, np.log10(1.6e9), 200)  # from 1 second to ~50 years in seconds
-    k_mod_theoretical = 0.663 * t_values**(-1/16)
+    # # Plot a graph of loading duration vs. k_mod using the theoretical relation:
+    # # k_mod = 0.663 * t^(-1/16)
+    # # Here, t (loading duration) is plotted on the x-axis (in seconds).
+    # t_values = np.logspace(0, np.log10(1.6e9), 200)  # from 1 second to ~50 years in seconds
+    # k_mod_theoretical = 0.663 * t_values**(-1/16)
 
-    fig, ax = plt.subplots()
-    ax.plot(t_values, k_mod_theoretical, label=r"$k_{mod} = 0.663 \, t^{-1/16}$")
-    ax.set_xscale('log')
-    ax.set_xlabel("Loading Duration (s)")
-    ax.set_ylabel("$k_{mod}$")
-    ax.legend()
-    ax.grid(True, which="both", ls="--", lw=0.5)
-    st.pyplot(fig)
+    # fig, ax = plt.subplots()
+    # ax.plot(t_values, k_mod_theoretical, label=r"$k_{mod} = 0.663 \, t^{-1/16}$")
+    # ax.set_xscale('log')
+    # ax.set_xlabel("Loading Duration (s)")
+    # ax.set_ylabel("$k_{mod}$")
+    # ax.legend()
+    # ax.grid(True, which="both", ls="--", lw=0.5)
+    # st.pyplot(fig)
