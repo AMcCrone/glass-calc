@@ -15,19 +15,19 @@ $$
 $$
 
 where:
-- \( f_{bk} \) is the characteristic bending strength (N/mm²),
-- \( k_{sp} \) is the glass surface profile factor,
-- \( k'_{sp} \) is the surface finish factor (**None** = 1, **Sand blasted** = 0.6, **Acid etched** = 1),
-- \( k_v \) is the strengthening factor,
-- \( k_e \) is the edge strength factor,
-- \( k_{mod} \) is the load duration factor,
-- \( \gamma_M \) is the material partial safety factor.
+- $$ f_{bk} $$ is the characteristic bending strength (N/mm²),
+- $$ k_{sp} $$ is the glass surface profile factor,
+- $$ k'_{sp} $$ is the surface finish factor (**None** = 1, **Sand blasted** = 0.6, **Acid etched** = 1),
+- $$ k_v $$ is the strengthening factor,
+- $$ k_e $$ is the edge strength factor,
+- $$ k_{mod} $$ is the load duration factor,
+- $$ \gamma_M $$ is the material partial safety factor.
 
 For the material partial safety factor:
 - For **basic annealed glass**:
-  - IStructE: \( \gamma_M = 1.6 \)  
-  - EN 16612: \( \gamma_M = 1.8 \)
-- For **surface prestressed glass** (all other types): \( \gamma_M = 1.2 \).
+  - IStructE: $$ \gamma_M = 1.6 $$  
+  - EN 16612: $$ \gamma_M = 1.8 $$
+- For **surface prestressed glass** (all other types): $$ \gamma_M = 1.2 $$.
 
 *Note: Adjust any factors or equations as necessary to match your detailed spreadsheet model.*
     """,
@@ -55,7 +55,7 @@ fbk_options = {
     "Chemically toughened (EN 12337-1, 150 N/mm²)": {"value": 150, "category": "prestressed"},
     "Chemically toughened patterned (EN 12337-1, 100 N/mm²)": {"value": 100, "category": "prestressed"},
 }
-fbk_choice = st.selectbox("Characteristic bending strength \(f_{bk}\)", list(fbk_options.keys()))
+fbk_choice = st.selectbox("Characteristic bending strength $$f_{bk}$$", list(fbk_options.keys()))
 fbk_value = fbk_options[fbk_choice]["value"]
 glass_category = fbk_options[fbk_choice]["category"]
 
@@ -69,7 +69,7 @@ ksp_options = {
     "Polished wired glass": 0.75,
     "Patterned wired glass": 0.6,
 }
-ksp_choice = st.selectbox("Glass surface profile factor \(k_{sp}\)", list(ksp_options.keys()))
+ksp_choice = st.selectbox("Glass surface profile factor $$k_{sp}$$", list(ksp_options.keys()))
 ksp_value = ksp_options[ksp_choice]
 
 # 3. Surface finish factor (k'₍sp₎) – new parameter with only three options
@@ -78,7 +78,7 @@ ksp_prime_options = {
     "Sand blasted": 0.6,
     "Acid etched": 1.0,
 }
-ksp_prime_choice = st.selectbox("Surface finish factor \(k'_{sp}\)", list(ksp_prime_options.keys()))
+ksp_prime_choice = st.selectbox("Surface finish factor $$k'_{sp}$$", list(ksp_prime_options.keys()))
 ksp_prime_value = ksp_prime_options[ksp_prime_choice]
 
 # 4. Strengthening factor (k₍v₎)
@@ -86,7 +86,7 @@ kv_options = {
     "Horizontal toughening": 1.0,
     "Vertical toughening": 0.6,
 }
-kv_choice = st.selectbox("Strengthening factor \(k_{v}\)", list(kv_options.keys()))
+kv_choice = st.selectbox("Strengthening factor $$k_{v}$$", list(kv_options.keys()))
 kv_value = kv_options[kv_choice]
 
 # 5. Edge strength factor (k₍e₎)
@@ -96,7 +96,7 @@ ke_options = {
     "Seamed float edges": 0.9,
     "Other edge types": 0.8,
 }
-ke_choice = st.selectbox("Edge strength factor \(k_{e}\)", list(ke_options.keys()))
+ke_choice = st.selectbox("Edge strength factor $$k_{e}$$", list(ke_options.keys()))
 ke_value = ke_options[ke_choice]
 
 # 6 & 7. Material partial safety factor (γ₍M₎)
@@ -105,7 +105,7 @@ if glass_category == "basic":
 else:
     gamma_M = 1.2
 
-st.markdown(f"**Selected material partial safety factor \(\\gamma_M\): {gamma_M}**")
+st.markdown(f"**Selected material partial safety factor $$\gamma_M$$: {gamma_M}**")
 
 # 4. Load duration factors (k₍mod₎) – full table of options
 kmod_options = {
