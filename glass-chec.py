@@ -211,13 +211,12 @@ time_list = [
     ("10 years", 315360000),
     ("50 years", 1576800000)
 ]
-
 time_map = {label: seconds for label, seconds in time_list}
 tickvals = [seconds for label, seconds in time_list]
 ticktext = [label for label, seconds in time_list]
 
 # -----------------------------------------------------
-# 2. Create a dropdown for Interlayer selection
+# 2. Create dropdowns for interlayer, temperature, and load duration
 # -----------------------------------------------------
 interlayer_options = [
     "SentryGlas", 
@@ -231,7 +230,7 @@ selected_interlayer = st.selectbox("Select Interlayer:", interlayer_options)
 # -----------------------------------------------------
 # 3. Load the Excel file (each sheet is one interlayer)
 # -----------------------------------------------------
-excel_file = "Interlayer_E(t)_Database.xlsx"  # Ensure this file is in your repo/folder
+excel_file = "Interlayer_E(t)_Database.xlsx"  # Ensure this file is in your repository
 try:
     df = pd.read_excel(excel_file, sheet_name=selected_interlayer)
 except Exception as e:
@@ -239,8 +238,8 @@ except Exception as e:
     st.stop()
 
 # -----------------------------------------------------
-# 4. Convert wide table into long format
-#    (Assumes first column is "Temperature (°C)" and the rest are load durations)
+# 4. Convert the wide table into long format
+#    Assumes the first column is "Temperature (°C)" and the other columns are load durations.
 # -----------------------------------------------------
 df_melted = df.melt(
     id_vars="Temperature (°C)",
@@ -248,11 +247,16 @@ df_melted = df.melt(
     value_name="E(MPa)"
 )
 
-# Map the load duration strings to numeric seconds
+# Ensure the modulus values are numeric
+df_melted["E(MPa)"] = pd.to_numeric(df_melted["E(MPa)"], errors="coerce")
+# Optionally, drop rows with non-numeric values
+df_melted.dropna(subset=["E(MPa)"], inplace=True)
+
+# Map the load duration strings to numeric seconds for plotting on log scale
 df_melted["Time_s"] = df_melted["Time"].map(time_map)
 
 # -----------------------------------------------------
-# 5. Add selection boxes for Temperature and Load Duration
+# 5. Create selection boxes for Temperature and Load Duration
 # -----------------------------------------------------
 temp_list = sorted(df["Temperature (°C)"].unique())
 selected_temp = st.selectbox("Select Temperature (°C):", temp_list)
@@ -260,7 +264,7 @@ selected_temp = st.selectbox("Select Temperature (°C):", temp_list)
 time_options = list(time_map.keys())
 selected_time = st.selectbox("Select Load Duration:", time_options)
 
-# Find the data point corresponding to the selected Temperature and Load Duration
+# Find the corresponding data point
 selected_point = df_melted[
     (df_melted["Temperature (°C)"] == selected_temp) &
     (df_melted["Time"] == selected_time)
@@ -274,7 +278,15 @@ else:
     highlight_x, highlight_y, highlight_z = None, None, None
 
 # -----------------------------------------------------
-# 6. Create the 3D Plotly Scatter Plot
+# 6. Display the selected Young's modulus above the graph
+# -----------------------------------------------------
+if highlight_z is not None:
+    st.markdown(f"**Selected Young's Modulus:** {highlight_z} MPa")
+else:
+    st.markdown("**Selected data point not found.**")
+
+# -----------------------------------------------------
+# 7. Create the 3D Plotly Scatter Plot
 # -----------------------------------------------------
 # All data trace
 trace_all = go.Scatter3d(
@@ -305,15 +317,15 @@ trace_highlight = go.Scatter3d(
     name="Selected Point"
 )
 
-# Combine both traces in a figure
+# Combine traces and update layout
 fig = go.Figure(data=[trace_all, trace_highlight])
 fig.update_layout(
     scene=dict(
         xaxis=dict(
             title='Load Duration',
             type='log',
-            tickvals=tickvals,     # Use the seconds values
-            ticktext=ticktext      # Original text labels on the axis
+            tickvals=tickvals,
+            ticktext=ticktext
         ),
         yaxis=dict(title='Temperature (°C)'),
         zaxis=dict(title='E(t) [MPa]')
@@ -322,6 +334,6 @@ fig.update_layout(
 )
 
 # -----------------------------------------------------
-# 7. Display the plot in Streamlit
+# 8. Display the plot in Streamlit
 # -----------------------------------------------------
 st.plotly_chart(fig, use_container_width=True)
