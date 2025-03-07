@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
 st.title("Glass Design Strength Calculator")
 st.markdown(
@@ -29,10 +31,10 @@ where:
 - $$ f_{b;k} $$ is the characteristic bending strength (N/mm²),
 - $$ k_{sp} $$ is the glass surface profile factor,
 - $$ k'_{sp} $$ is the surface finish factor (**None** = 1, **Sand blasted** = 0.6, **Acid etched** = 1) – (this parameter is now separate from $$ k_{sp} $$),
-- $$ k_v $$ is the strengthening factor,
-- $$ k_e $$ is the edge strength factor,
+- $$ k_{v} $$ is the strengthening factor,
+- $$ k_{e} $$ is the edge strength factor,
 - $$ k_{mod} $$ is the load duration factor,
-- $$ f_{g;k} $$ is the design value for glass,
+- $$ f_{g;k} $$ is the design value for glass (fixed at 45 N/mm²),
 - For annealed glass:
   - IStructE: $$ \gamma_{M;A} = 1.6 $$  
   - EN 16612: $$ \gamma_{M;A} = 1.8 $$
@@ -110,6 +112,8 @@ ke_options = {
 ke_choice = st.selectbox("Edge strength factor $$k_{e}$$", list(ke_options.keys()))
 ke_value = ke_options[ke_choice]
 
+# Fixed design value for glass (f_{g;k}) is always 45 N/mm².
+f_gk_value = 45
 st.markdown(f"**Fixed design value for glass $$f_{{g;k}}$$: {f_gk_value} N/mm²**")
 
 # Define material partial safety factors:
@@ -161,3 +165,18 @@ if st.button("Calculate Design Strength for All Load Cases"):
         
     df_results = pd.DataFrame(results)
     st.table(df_results)
+
+    # Plot a graph of loading duration vs. k_mod using the theoretical relation:
+    # k_mod = 0.663 * t^(-1/16)
+    # Here, t (loading duration) is plotted on the x-axis (in seconds).
+    t_values = np.logspace(0, np.log10(1.6e9), 200)  # from 1 second to ~50 years in seconds
+    k_mod_theoretical = 0.663 * t_values**(-1/16)
+
+    fig, ax = plt.subplots()
+    ax.plot(t_values, k_mod_theoretical, label=r"$k_{mod} = 0.663 \, t^{-1/16}$")
+    ax.set_xscale('log')
+    ax.set_xlabel("Loading Duration (s)")
+    ax.set_ylabel("$k_{mod}$")
+    ax.legend()
+    ax.grid(True, which="both", ls="--", lw=0.5)
+    st.pyplot(fig)
