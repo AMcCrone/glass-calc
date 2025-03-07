@@ -129,9 +129,9 @@ else:
     gamma_ma = 1.6 if standard == "IStructE Structural Use of Glass in Buildings" else 1.8
     gamma_mv = 1.2
 
-st.markdown(f"**Selected material partial safety factor $$\\gamma_{ma if glass_category=='basic' else 'ma'}$$: {gamma_ma}**")
+st.markdown(f"**Selected material partial safety factor $$\gamma_{ma} if glass_category=='basic' else 'ma'}$$: {gamma_ma}**")
 if gamma_mv:
-    st.markdown(f"**Selected material partial safety factor $$\\gamma_{mv}$$: {gamma_mv}**")
+    st.markdown(f"**Selected material partial safety factor $$\gamma_{mv}$$: {gamma_mv}**")
 
 # 6. Load duration factors (k₍mod₎) – full table of options
 kmod_options = {
