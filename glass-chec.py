@@ -186,34 +186,42 @@ if st.button("Calculate Design Strength for All Load Cases"):
 st.title("SentryGlas® Relaxation Modulus 3D Plot")
 
 # -----------------------------------------------------
-# 1) Define the time points in seconds (for log scale)
+# 1) Define time labels and their numeric values (seconds)
+#    in ascending order for correct log-scale placement.
 # -----------------------------------------------------
-time_map = {
-    "1 sec":      1,
-    "3 sec":      3,
-    "5 sec":      5,
-    "10 sec":     10,
-    "30 sec":     30,
-    "1 min":      60,
-    "5 min":      300,
-    "10 min":     600,
-    "30 min":     1800,
-    "1 hour":     3600,
-    "6 hours":    21600,
-    "12 hours":   43200,
-    "1 day":      86400,
-    "2 days":     172800,
-    "5 days":     432000,
-    "1 week":     604800,
-    "3 weeks":    1814400,
-    "1 month":    2592000,   # ~30 days
-    "1 year":     31536000,
-    "10 years":   315360000,
-    "50 years":   1576800000
-}
+time_list = [
+    ("1 sec",      1),
+    ("3 sec",      3),
+    ("5 sec",      5),
+    ("10 sec",     10),
+    ("30 sec",     30),
+    ("1 min",      60),
+    ("5 min",      300),
+    ("10 min",     600),
+    ("30 min",     1800),
+    ("1 hour",     3600),
+    ("6 hours",    21600),
+    ("12 hours",   43200),
+    ("1 day",      86400),
+    ("2 days",     172800),
+    ("5 days",     432000),
+    ("1 week",     604800),
+    ("3 weeks",    1814400),
+    ("1 month",    2592000),
+    ("1 year",     31536000),
+    ("10 years",   315360000),
+    ("50 years",   1576800000)
+]
+
+# Create a dictionary for quick label -> seconds mapping.
+time_map = {label: seconds for label, seconds in time_list}
+
+# Prepare tickvals and ticktext for the x-axis
+tickvals = [seconds for _, seconds in time_list]
+ticktext = [label for label, _ in time_list]
 
 # -----------------------------------------------------
-# 2) Input data from your table
+# 2) Input data from your table (wide format)
 # -----------------------------------------------------
 data = {
     "Temperature (°C)": [-20,   0,   10,  20,  25,  30,  35,   40,   50,   60,    70,    80],
@@ -257,24 +265,69 @@ df_melted = df.melt(
 df_melted["Time_s"] = df_melted["Time"].map(time_map)
 
 # -----------------------------------------------------
-# 5) Create the 3D Plotly scatter
+# 5) Add selection boxes for user to pick a Temperature and Load Duration
 # -----------------------------------------------------
-fig = go.Figure(data=[go.Scatter3d(
-    x=df_melted["Time_s"],                 # X-axis: numeric time in seconds
-    y=df_melted["Temperature (°C)"],       # Y-axis: temperature
-    z=df_melted["E(MPa)"],                 # Z-axis: relaxation modulus
+temp_list = sorted(df["Temperature (°C)"].unique())
+temp_option = st.selectbox("Select Temperature (°C):", temp_list)
+
+time_labels = [t[0] for t in time_list]  # e.g., ["1 sec", "3 sec", ...]
+time_option = st.selectbox("Select Load Duration:", time_labels)
+
+# Find the single row matching user selections
+highlight_row = df_melted[
+    (df_melted["Temperature (°C)"] == temp_option) &
+    (df_melted["Time"] == time_option)
+]
+highlight_x = highlight_row["Time_s"].values[0] if not highlight_row.empty else None
+highlight_y = temp_option
+highlight_z = highlight_row["E(MPa)"].values[0] if not highlight_row.empty else None
+
+# -----------------------------------------------------
+# 6) Create the main 3D scatter for all data
+# -----------------------------------------------------
+trace_all = go.Scatter3d(
+    x=df_melted["Time_s"],
+    y=df_melted["Temperature (°C)"],
+    z=df_melted["E(MPa)"],
     mode='markers',
     marker=dict(
         size=5,
         color=df_melted["E(MPa)"],
         colorscale='Viridis',
         opacity=0.8
-    )
-)])
+    ),
+    name="All Data"
+)
+
+# -----------------------------------------------------
+# 7) Create a highlight trace for the selected point
+# -----------------------------------------------------
+trace_highlight = go.Scatter3d(
+    x=[highlight_x] if highlight_x is not None else [],
+    y=[highlight_y] if highlight_x is not None else [],
+    z=[highlight_z] if highlight_x is not None else [],
+    mode='markers',
+    marker=dict(
+        size=12,         # Larger marker size
+        color='red',
+        symbol='diamond'
+    ),
+    name='Selected Point'
+)
+
+# -----------------------------------------------------
+# 8) Combine traces and update layout
+# -----------------------------------------------------
+fig = go.Figure(data=[trace_all, trace_highlight])
 
 fig.update_layout(
     scene=dict(
-        xaxis=dict(title='Time [s]', type='log'),       # log scale on x-axis
+        xaxis=dict(
+            title='Time',
+            type='log',
+            tickvals=tickvals,     # numeric values in seconds
+            ticktext=ticktext      # corresponding original labels
+        ),
         yaxis=dict(title='Temperature [°C]'),
         zaxis=dict(title='E(t) [MPa]')
     ),
@@ -282,7 +335,6 @@ fig.update_layout(
 )
 
 # -----------------------------------------------------
-# 6) Display the plot in Streamlit
+# 9) Display the plot in Streamlit
 # -----------------------------------------------------
 st.plotly_chart(fig, use_container_width=True)
-
