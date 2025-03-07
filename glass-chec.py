@@ -28,7 +28,7 @@ $$
 where:
 - $$ f_{bk} $$ is the characteristic bending strength (N/mm²),
 - $$ k_{sp} $$ is the glass surface profile factor,
-- $$ k'_{sp} $$ is the surface finish factor (**None** = 1, **Sand blasted** = 0.6, **Acid etched** = 1) – (this parameter is now separate from \( k_{sp} \)),
+- $$ k'_{sp} $$ is the surface finish factor (**None** = 1, **Sand blasted** = 0.6, **Acid etched** = 1) – (this parameter is now separate from $$ k_{sp} $$),
 - $$ k_v $$ is the strengthening factor,
 - $$ k_e $$ is the edge strength factor,
 - $$ k_{mod} $$ is the load duration factor,
@@ -120,18 +120,18 @@ else:
 fgk_value = st.number_input("Enter design value for glass, $$f_{gk}$$ (N/mm²)", value=float(default_fgk), step=1.0)
 
 # Define material partial safety factors:
-# For annealed glass (basic):
 if glass_category == "basic":
     gamma_ma = 1.6 if standard == "IStructE Structural Use of Glass in Buildings" else 1.8
-    # gamma_mv is not used for annealed glass.
     gamma_mv = None
 else:
     gamma_ma = 1.6 if standard == "IStructE Structural Use of Glass in Buildings" else 1.8
     gamma_mv = 1.2
 
-st.markdown(f"**Selected material partial safety factor $$\gamma_{ma} if glass_category=='basic' else 'ma'}$$: {gamma_ma}**")
-if gamma_mv:
-    st.markdown(f"**Selected material partial safety factor $$\gamma_{mv}$$: {gamma_mv}**")
+if glass_category == "basic":
+    st.markdown(f"**Selected material partial safety factor $$\\gamma_{{ma}}$$: {gamma_ma}**")
+else:
+    st.markdown(f"**Selected material partial safety factor $$\\gamma_{{ma}}$$: {gamma_ma}**")
+    st.markdown(f"**Selected material partial safety factor $$\\gamma_{{mv}}$$: {gamma_mv}**")
 
 # 6. Load duration factors (k₍mod₎) – full table of options
 kmod_options = {
@@ -167,4 +167,7 @@ if st.button("Calculate Design Strength for All Load Cases"):
         })
         
     df_results = pd.DataFrame(results)
-    st.table(df_results)
+    # Ensure the design strength column is numeric for the gradient
+    df_results["Glass Design Strength (N/mm²)"] = pd.to_numeric(df_results["Glass Design Strength (N/mm²)"])
+    styled_df = df_results.style.background_gradient(subset=["Glass Design Strength (N/mm²)"], cmap="RdYlGn")
+    st.dataframe(styled_df)
