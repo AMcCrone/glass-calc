@@ -3,25 +3,6 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objs as go
 
-# Retrieve the password from secrets
-PASSWORD = st.secrets["password"]
-
-# Initialize authentication state
-if "authenticated" not in st.session_state:
-    st.session_state["authenticated"] = False
-
-def check_password():
-    """Check the password input against the secret password."""
-    if st.session_state.get("password_input") == PASSWORD:
-        st.session_state["authenticated"] = True
-    else:
-        st.error("Incorrect password.")
-
-# If the user is not authenticated, show the password input and halt the app.
-if not st.session_state["authenticated"]:
-    st.text_input("Enter Password:", type="password", key="password_input", on_change=check_password)
-    st.stop()
-
 st.title("Glass Design Strength Calculator")
 st.markdown(
     r"""
@@ -199,7 +180,6 @@ kmod_options = {
 if st.button("Calculate Design Strength for All Load Cases"):
     results = []
     for load_type, kmod_value in kmod_options.items():
-        # Four cases based on standard and whether the glass is annealed (basic) or not.
         if glass_category == "basic":  # Annealed glass (both standards use the same formula)
             f_gd = (ke_value * kmod_value * ksp_value * f_gk_value) / gamma_MA
         else:  # Non-annealed glass
@@ -221,7 +201,6 @@ if st.button("Calculate Design Strength for All Load Cases"):
 # 2D Plot: Theoretical Load Duration Factor (k_mod)
 # =============================================================================
 st.subheader("Theoretical Load Duration Factor (k_mod)")
-# Generate theoretical data from 1 sec to ~50 years (1.6e9 seconds) on a log scale
 t_values = np.logspace(0, np.log10(1.6e9), 200)
 k_mod_theoretical = 0.663 * t_values**(-1/16)
 
@@ -274,10 +253,10 @@ df_melted = df.melt(
     var_name="Time",
     value_name="E(MPa)"
 )
-# Ensure modulus values are numeric
-df_melted["E(MPa)"] = pd.to_numeric(df_melted["E(MPa)"], errors="coerce")
-df_melted.dropna(subset=["E(MPa)"], inplace=True)
-# Map the load duration strings to numeric seconds for log-scale
+# Replace non-numeric values (e.g. "No Data") with 0.05 N/mm²
+df_melted["E(MPa)"] = pd.to_numeric(df_melted["E(MPa)"], errors="coerce").fillna(0.05)
+
+# Map the load duration strings to numeric seconds for the log-scale x-axis
 df_melted["Time_s"] = df_melted["Time"].map(time_map)
 
 # 4. Create selection boxes for Temperature and Load Duration
