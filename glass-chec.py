@@ -110,13 +110,6 @@ ke_options = {
 ke_choice = st.selectbox("Edge strength factor $$k_{e}$$", list(ke_options.keys()))
 ke_value = ke_options[ke_choice]
 
-# Fixed design value for glass (f_{g;k})
-# For annealed glass (basic) f_{g;k} is fixed at f_{b;k}; for non-annealed, we use 75% of f_{b;k}
-if glass_category == "basic":
-    f_gk_value = fbk_value
-else:
-    f_gk_value = fbk_value * 0.75
-
 st.markdown(f"**Fixed design value for glass $$f_{{g;k}}$$: {f_gk_value} N/mm²**")
 
 # Define material partial safety factors:
