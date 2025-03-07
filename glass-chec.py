@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objs as go
-# import matplotlib.pyplot as plt
 
 st.title("Glass Design Strength Calculator")
 st.markdown(
@@ -47,6 +46,40 @@ where:
     unsafe_allow_html=True,
 )
 
+# =============================================================================
+# Define the time duration mapping once for both plots
+# =============================================================================
+time_list = [
+    ("1 sec", 1),
+    ("3 sec", 3),
+    ("5 sec", 5),
+    ("10 sec", 10),
+    ("30 sec", 30),
+    ("1 min", 60),
+    ("5 min", 300),
+    ("10 min", 600),
+    ("30 min", 1800),
+    ("1 hour", 3600),
+    ("6 hours", 21600),
+    ("12 hours", 43200),
+    ("1 day", 86400),
+    ("2 days", 172800),
+    ("5 days", 432000),
+    ("1 week", 604800),
+    ("3 weeks", 1814400),
+    ("1 month", 2592000),
+    ("1 year", 31536000),
+    ("10 years", 315360000),
+    ("50 years", 1576800000)
+]
+time_map = {label: seconds for label, seconds in time_list}
+tickvals = [seconds for label, seconds in time_list]
+ticktext = [label for label, seconds in time_list]
+
+# =============================================================================
+# Input Parameters for Glass Design Strength
+# =============================================================================
+
 # Overall standard selection
 standard = st.selectbox(
     "Select the Standard",
@@ -56,7 +89,6 @@ standard = st.selectbox(
 st.header("Input Parameters")
 
 # 1. Characteristic bending strength (f_{b;k})
-# Each entry has an associated glass category: "basic" means annealed, others are non-annealed.
 fbk_options = {
     "Annealed (EN-572-1, 45 N/mm²)": {"value": 45, "category": "basic"},
     "Heat strengthened (EN 1863-1, 70 N/mm²)": {"value": 70, "category": "prestressed"},
@@ -72,7 +104,7 @@ fbk_choice = st.selectbox("Characteristic bending strength $$f_{b;k}$$", list(fb
 fbk_value = fbk_options[fbk_choice]["value"]
 glass_category = fbk_options[fbk_choice]["category"]
 
-# 2. Glass surface profile factor (k_{sp}) – excluding finish options
+# 2. Glass surface profile factor (k_{sp})
 ksp_options = {
     "Float glass": 1.0,
     "Drawn sheet glass": 1.0,
@@ -85,8 +117,7 @@ ksp_options = {
 ksp_choice = st.selectbox("Glass surface profile factor $$k_{sp}$$", list(ksp_options.keys()))
 ksp_value = ksp_options[ksp_choice]
 
-# 3. Surface finish factor (k'_{sp}) – new parameter with only three options.
-# (Note: This parameter is not used in the new design strength equations.)
+# 3. Surface finish factor (k'_{sp})
 ksp_prime_options = {
     "None": 1.0,
     "Sand blasted": 0.6,
@@ -145,7 +176,7 @@ kmod_options = {
     "50 years – Permanent": 0.29,
 }
 
-# Calculation for each load duration case:
+# Calculation for each load duration case
 if st.button("Calculate Design Strength for All Load Cases"):
     results = []
     for load_type, kmod_value in kmod_options.items():
@@ -167,57 +198,40 @@ if st.button("Calculate Design Strength for All Load Cases"):
     df_results = pd.DataFrame(results)
     st.table(df_results)
 
-    # # Plot a graph of loading duration vs. k_mod using the theoretical relation:
-    # # k_mod = 0.663 * t^(-1/16)
-    # # Here, t (loading duration) is plotted on the x-axis (in seconds).
-    # t_values = np.logspace(0, np.log10(1.6e9), 200)  # from 1 second to ~50 years in seconds
-    # k_mod_theoretical = 0.663 * t_values**(-1/16)
+# =============================================================================
+# 2D Plot: Theoretical Load Duration Factor (k_mod)
+# =============================================================================
+st.subheader("Theoretical Load Duration Factor (k_mod)")
+# Generate theoretical data from 1 sec to ~50 years (1.6e9 seconds) on a log scale
+t_values = np.logspace(0, np.log10(1.6e9), 200)
+k_mod_theoretical = 0.663 * t_values**(-1/16)
 
-    # fig, ax = plt.subplots()
-    # ax.plot(t_values, k_mod_theoretical, label=r"$k_{mod} = 0.663 \, t^{-1/16}$")
-    # ax.set_xscale('log')
-    # ax.set_xlabel("Loading Duration (s)")
-    # ax.set_ylabel("$k_{mod}$")
-    # ax.legend()
-    # ax.grid(True, which="both", ls="--", lw=0.5)
-    # st.pyplot(fig)
+trace = go.Scatter(
+    x=t_values,
+    y=k_mod_theoretical,
+    mode="lines",
+    name=r"$k_{mod} = 0.663\,t^{-1/16}$"
+)
+layout = go.Layout(
+    xaxis=dict(
+        title="Loading Duration",
+        type="log",
+        tickvals=tickvals,
+        ticktext=ticktext
+    ),
+    yaxis=dict(title="k_mod"),
+    legend=dict(x=0.05, y=0.95),
+    template="plotly_white"
+)
+fig2d = go.Figure(data=[trace], layout=layout)
+st.plotly_chart(fig2d, use_container_width=True)
 
-
+# =============================================================================
+# Interlayer Relaxation Modulus 3D Plot Section
+# =============================================================================
 st.title("Interlayer Relaxation Modulus 3D Plot")
 
-# -----------------------------------------------------
-# 1. Define the load duration mapping and axis ticks
-# -----------------------------------------------------
-time_list = [
-    ("1 sec", 1),
-    ("3 sec", 3),
-    ("5 sec", 5),
-    ("10 sec", 10),
-    ("30 sec", 30),
-    ("1 min", 60),
-    ("5 min", 300),
-    ("10 min", 600),
-    ("30 min", 1800),
-    ("1 hour", 3600),
-    ("6 hours", 21600),
-    ("12 hours", 43200),
-    ("1 day", 86400),
-    ("2 days", 172800),
-    ("5 days", 432000),
-    ("1 week", 604800),
-    ("3 weeks", 1814400),
-    ("1 month", 2592000),
-    ("1 year", 31536000),
-    ("10 years", 315360000),
-    ("50 years", 1576800000)
-]
-time_map = {label: seconds for label, seconds in time_list}
-tickvals = [seconds for label, seconds in time_list]
-ticktext = [label for label, seconds in time_list]
-
-# -----------------------------------------------------
-# 2. Create dropdowns for interlayer, temperature, and load duration
-# -----------------------------------------------------
+# 1. Create dropdowns for interlayer, temperature, and load duration
 interlayer_options = [
     "SentryGlas", 
     "SentryGlas Xtra", 
@@ -227,9 +241,7 @@ interlayer_options = [
 ]
 selected_interlayer = st.selectbox("Select Interlayer:", interlayer_options)
 
-# -----------------------------------------------------
-# 3. Load the Excel file (each sheet is one interlayer)
-# -----------------------------------------------------
+# 2. Load the Excel file (each sheet is one interlayer)
 excel_file = "Interlayer_E(t)_Database.xlsx"  # Ensure this file is in your repository
 try:
     df = pd.read_excel(excel_file, sheet_name=selected_interlayer)
@@ -237,39 +249,28 @@ except Exception as e:
     st.error(f"Error loading Excel file: {e}")
     st.stop()
 
-# -----------------------------------------------------
-# 4. Convert the wide table into long format
-#    Assumes the first column is "Temperature (°C)" and the other columns are load durations.
-# -----------------------------------------------------
+# 3. Convert the wide table into long format
 df_melted = df.melt(
     id_vars="Temperature (°C)",
     var_name="Time",
     value_name="E(MPa)"
 )
-
-# Ensure the modulus values are numeric
+# Ensure modulus values are numeric
 df_melted["E(MPa)"] = pd.to_numeric(df_melted["E(MPa)"], errors="coerce")
-# Optionally, drop rows with non-numeric values
 df_melted.dropna(subset=["E(MPa)"], inplace=True)
-
-# Map the load duration strings to numeric seconds for plotting on log scale
+# Map the load duration strings to numeric seconds for log-scale
 df_melted["Time_s"] = df_melted["Time"].map(time_map)
 
-# -----------------------------------------------------
-# 5. Create selection boxes for Temperature and Load Duration
-# -----------------------------------------------------
+# 4. Create selection boxes for Temperature and Load Duration
 temp_list = sorted(df["Temperature (°C)"].unique())
 selected_temp = st.selectbox("Select Temperature (°C):", temp_list)
-
-time_options = list(time_map.keys())
-selected_time = st.selectbox("Select Load Duration:", time_options)
+selected_time = st.selectbox("Select Load Duration:", list(time_map.keys()))
 
 # Find the corresponding data point
 selected_point = df_melted[
     (df_melted["Temperature (°C)"] == selected_temp) &
     (df_melted["Time"] == selected_time)
 ]
-
 if not selected_point.empty:
     highlight_x = selected_point["Time_s"].values[0]
     highlight_y = selected_temp
@@ -277,18 +278,13 @@ if not selected_point.empty:
 else:
     highlight_x, highlight_y, highlight_z = None, None, None
 
-# -----------------------------------------------------
-# 6. Display the selected Young's modulus above the graph
-# -----------------------------------------------------
+# Display the selected Young's modulus above the graph
 if highlight_z is not None:
     st.markdown(f"**Selected Young's Modulus:** {highlight_z} MPa")
 else:
     st.markdown("**Selected data point not found.**")
 
-# -----------------------------------------------------
-# 7. Create the 3D Plotly Scatter Plot
-# -----------------------------------------------------
-# All data trace
+# 5. Create the 3D Plotly Scatter Plot
 trace_all = go.Scatter3d(
     x=df_melted["Time_s"],
     y=df_melted["Temperature (°C)"],
@@ -302,24 +298,20 @@ trace_all = go.Scatter3d(
     ),
     name="All Data"
 )
-
-# Highlight trace for the selected data point
 trace_highlight = go.Scatter3d(
     x=[highlight_x] if highlight_x is not None else [],
     y=[highlight_y] if highlight_y is not None else [],
     z=[highlight_z] if highlight_z is not None else [],
     mode='markers',
     marker=dict(
-        size=12,         # Larger marker for emphasis
+        size=12,
         color='red',
         symbol='diamond'
     ),
     name="Selected Point"
 )
-
-# Combine traces and update layout
-fig = go.Figure(data=[trace_all, trace_highlight])
-fig.update_layout(
+fig3d = go.Figure(data=[trace_all, trace_highlight])
+fig3d.update_layout(
     scene=dict(
         xaxis=dict(
             title='Load Duration',
@@ -332,8 +324,4 @@ fig.update_layout(
     ),
     margin=dict(l=0, r=0, b=0, t=0)
 )
-
-# -----------------------------------------------------
-# 8. Display the plot in Streamlit
-# -----------------------------------------------------
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig3d, use_container_width=True)
