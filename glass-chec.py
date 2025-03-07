@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly.graph_objs as go
 # import matplotlib.pyplot as plt
 
 st.title("Glass Design Strength Calculator")
@@ -180,3 +181,108 @@ if st.button("Calculate Design Strength for All Load Cases"):
     # ax.legend()
     # ax.grid(True, which="both", ls="--", lw=0.5)
     # st.pyplot(fig)
+
+
+st.title("SentryGlas® Relaxation Modulus 3D Plot")
+
+# -----------------------------------------------------
+# 1) Define the time points in seconds (for log scale)
+# -----------------------------------------------------
+time_map = {
+    "1 sec":      1,
+    "3 sec":      3,
+    "5 sec":      5,
+    "10 sec":     10,
+    "30 sec":     30,
+    "1 min":      60,
+    "5 min":      300,
+    "10 min":     600,
+    "30 min":     1800,
+    "1 hour":     3600,
+    "6 hours":    21600,
+    "12 hours":   43200,
+    "1 day":      86400,
+    "2 days":     172800,
+    "5 days":     432000,
+    "1 week":     604800,
+    "3 weeks":    1814400,
+    "1 month":    2592000,   # ~30 days
+    "1 year":     31536000,
+    "10 years":   315360000,
+    "50 years":   1576800000
+}
+
+# -----------------------------------------------------
+# 2) Input data from your table
+# -----------------------------------------------------
+data = {
+    "Temperature (°C)": [-20,   0,   10,  20,  25,  30,  35,   40,   50,   60,    70,    80],
+    "1 sec":            [838, 749, 693, 629, 511, 443, 338,  229, 108.6, 35.4, 11.31,  4.65],
+    "3 sec":            [835, 743, 681, 612, 485, 413, 302,  187,   78,  24.5,  8.8,   4.0],
+    "5 sec":            [835, 740, 678, 606, 474, 405, 287,  167,  66.3, 20.67, 8.13,  3.66],
+    "10 sec":           [832, 737, 664, 594, 456, 381, 266,  143, 166.5, 51.84, 22.05, 9.99],
+    "30 sec":           [832, 732, 661, 602, 433, 349, 230,  109,   40,  12.8,  6.3,   2.9],
+    "1 min":            [829, 726, 651, 567, 413, 324, 209, 91.6,  33.8, 10.9,  5.64,  2.5],
+    "5 min":            [821, 717, 638, 549, 340, 243, 158,   57,  21.7,   7.6,  4.2,   1.7],
+    "10 min":           [818, 714, 618, 525, 334, 220, 141, 46.9, 18.57,  6.75, 3.45,  1.35],
+    "30 min":           [815, 708, 629, 511, 308, 194, 122,   34,  14.6,   5.5,  2.9,   1.1],
+    "1 hour":           [809, 703, 597, 493, 294, 178, 103, 27.8,  12.6,   5.1,  2.5,   1.0],
+    "6 hours":          [806, 680, 574, 458, 263, 162, 78.2,   17.1,  9.72,  4.26, 1.95, 0.9],
+    "12 hours":         [804, 668, 560, 438, 250, 153, 68.4,   15,    8.94,  4.05, 1.89, 0.9],
+    "1 day":            [801, 665, 553, 428, 234, 146, 60.1,   13.5,  8.4,   3.8,  1.8,  0.8],
+    "2 days":           [798, 654, 543, 406, 206, 105, 48.9,   12.3,  8.01,  3.78, 1.74, 0.87],
+    "5 days":           [795, 648, 516, 380, 177, 72,  36.7,   11,    7.2,   3.6,  1.6,  0.7],
+    "1 week":           [795, 645, 519, 368, 160, 66,  33.8,   10.9,  7.26,  3.54, 1.62, 0.75],
+    "3 weeks":          [792, 639, 498, 336, 131, 38,  24.6,   10,    6.5,   3.3,  1.5,  0.6],
+    "1 month":          [786, 636, 499, 330, 123, 35,  22.1,   9.9,   6.5,   3.3,  1.5,  0.8],
+    "1 year":           [772, 605, 467, 282, 93.3,20.3,14.7,   9.3,   6.3,   3,    1.4,  0.6],
+    "10 years":         [749, 579, 448, 256, 70.6,15,  12.2,   8.84,  6,     2.9,  1.3,  0.5],
+    "50 years":         [720, 559, 421, 223, 52.6,11.9, 9.03,  6.86,  5.46,  2.22, 1.05, 0.48]
+}
+
+df = pd.DataFrame(data)
+
+# -----------------------------------------------------
+# 3) Convert wide table into a "long" format
+# -----------------------------------------------------
+df_melted = df.melt(
+    id_vars="Temperature (°C)",
+    var_name="Time",
+    value_name="E(MPa)"
+)
+
+# -----------------------------------------------------
+# 4) Map time labels to numeric seconds for log scale
+# -----------------------------------------------------
+df_melted["Time_s"] = df_melted["Time"].map(time_map)
+
+# -----------------------------------------------------
+# 5) Create the 3D Plotly scatter
+# -----------------------------------------------------
+fig = go.Figure(data=[go.Scatter3d(
+    x=df_melted["Time_s"],                 # X-axis: numeric time in seconds
+    y=df_melted["Temperature (°C)"],       # Y-axis: temperature
+    z=df_melted["E(MPa)"],                 # Z-axis: relaxation modulus
+    mode='markers',
+    marker=dict(
+        size=5,
+        color=df_melted["E(MPa)"],
+        colorscale='Viridis',
+        opacity=0.8
+    )
+)])
+
+fig.update_layout(
+    scene=dict(
+        xaxis=dict(title='Time [s]', type='log'),       # log scale on x-axis
+        yaxis=dict(title='Temperature [°C]'),
+        zaxis=dict(title='E(t) [MPa]')
+    ),
+    margin=dict(l=0, r=0, b=0, t=0)
+)
+
+# -----------------------------------------------------
+# 6) Display the plot in Streamlit
+# -----------------------------------------------------
+st.plotly_chart(fig, use_container_width=True)
+
