@@ -471,21 +471,20 @@ def generate_pdf():
     # Create a new PDF object in A4 format
     pdf = FPDF(format='A4')
     pdf.add_page()
-    
-    # Add Source Sans Pro fonts
-    pdf.add_font("SourceSans", "", "SourceSansPro-Regular.ttf", uni=True)
-    pdf.add_font("SourceSans", "B", "SourceSansPro-Bold.ttf", uni=True)
-    
     pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.set_font("SourceSans", "", 12)
+    
+    # Use built-in Helvetica font
+    pdf.set_font("Helvetica", "", 12)
     
     # Report Title
-    pdf.set_font("SourceSans", "B", 16)
+    pdf.set_font("Helvetica", "B", 16)
     pdf.cell(0, 10, txt="Glass Calculation Report", ln=True, align="C")
     pdf.ln(5)
     
-    # Reset to regular font
-    pdf.set_font("SourceSans", "", 12)
+    # Body text
+    pdf.set_font("Helvetica", "", 12)
+    pdf.cell(0, 10, txt=f"Standard Used: {standard}", ln=True)
+    pdf.ln(3)
     
     # Report Summary
     pdf.cell(0, 10, txt=f"Standard Used: {standard}", ln=True)
@@ -555,9 +554,8 @@ def generate_pdf():
     for key, val in kmod_options.items():
         pdf.cell(0, 10, txt=f"{key}: {val}", ln=True)
 
-    # Final output with encoding
-    pdf_output = pdf.output(dest="S")
-    return pdf_output.encode("latin1")  # Critical fix
+    # Return as bytes
+    return pdf.output(dest="S").encode("latin-1")
 
 # Report Section
 if st.button("Save Report as PDF"):
