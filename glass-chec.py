@@ -555,7 +555,8 @@ def generate_pdf():
     
     # Output PDF to a bytes buffer
     pdf_output = pdf.output(dest="S").encode("latin1")
-    return pdf_output
+    # Final output (remove .encode()):
+    return pdf.output(dest="S")  # Returns bytes directly
 
 # Report Section with Save Report as PDF button
 st.markdown("<a name='report'></a>", unsafe_allow_html=True)
