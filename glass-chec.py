@@ -94,7 +94,7 @@ fbk_options = {
     "Chemically toughened (EN 12337-1, 150 N/mm²)": {"value": 150, "category": "prestressed"},
     "Chemically toughened patterned (EN 12337-1, 100 N/mm²)": {"value": 100, "category": "prestressed"},
 }
-fbk_choice = st.selectbox("Characteristic bending strength f_{b;k}", list(fbk_options.keys()))
+fbk_choice = st.selectbox("Characteristic bending strength $$f_{b;k}$$", list(fbk_options.keys()))
 fbk_value = fbk_options[fbk_choice]["value"]
 glass_category = fbk_options[fbk_choice]["category"]
 
