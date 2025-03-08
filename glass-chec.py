@@ -367,7 +367,7 @@ def style_selected(row, selected_value, key='Option'):
 # -----------------------
 # Characteristic Bending Strength Options (f₍b;k₎)
 # -----------------------
-st.markdown("### $$ f_{b;k} $$ - Characteristic Bending Strength")
+st.markdown("## $$ f_{b;k} $$ - Characteristic Bending Strength")
 df_fbk = pd.DataFrame({
     "Option": list(fbk_options.keys()),
     "Value (N/mm²)": [fbk_options[k]["value"] for k in fbk_options]
@@ -378,7 +378,7 @@ st.dataframe(df_fbk_styled.hide(axis="index"))
 # -----------------------
 # Glass Surface Profile Factor Options (kₛₚ)
 # -----------------------
-st.markdown("### $$ k_{sp} $$ - Glass Surface Profile Factor")
+st.markdown("## $$ k_{sp} $$ - Glass Surface Profile Factor")
 df_ksp = pd.DataFrame({
     "Option": list(ksp_options.keys()),
     "Value": list(ksp_options.values())
@@ -389,7 +389,7 @@ st.dataframe(df_ksp_styled.hide(axis="index"))
 # -----------------------
 # Surface Finish Factor Options (k'ₛₚ)
 # -----------------------
-st.markdown("### $$ k'_{sp} $$ - Surface Finish Factor")
+st.markdown("## $$ k'_{sp} $$ - Surface Finish Factor")
 df_ksp_prime = pd.DataFrame({
     "Option": list(ksp_prime_options.keys()),
     "Value": list(ksp_prime_options.values())
@@ -400,7 +400,7 @@ st.dataframe(df_ksp_prime_styled.hide(axis="index"))
 # -----------------------
 # Strengthening Factor Options (kᵥ)
 # -----------------------
-st.markdown("### $$ k_{v} $$ - Strengthening Factor")
+st.markdown("## $$ k_{v} $$ - Strengthening Factor")
 df_kv = pd.DataFrame({
     "Option": list(kv_options.keys()),
     "Value": list(kv_options.values())
@@ -411,7 +411,7 @@ st.dataframe(df_kv_styled.hide(axis="index"))
 # -----------------------
 # Edge Strength Factor Options (kₑ)
 # -----------------------
-st.markdown("### $$ k_{e} $$ - Edge Strength Factor")
+st.markdown("## $$ k_{e} $$ - Edge Strength Factor")
 df_ke = pd.DataFrame({
     "Option": list(ke_options.keys()),
     "Value": list(ke_options.values())
@@ -422,7 +422,7 @@ st.dataframe(df_ke_styled.hide(axis="index"))
 # -----------------------
 # Load Duration Factor Options (k_mod)
 # -----------------------
-st.markdown("### $$ k_{mod} $$ - Load Duration Factor Options (k_mod)")
+st.markdown("## $$ k_{mod} $$ - Load Duration Factor Options (k_mod)")
 df_kmod = pd.DataFrame({
     "Load Type": list(kmod_options.keys()),
     "k_mod": list(kmod_options.values())
