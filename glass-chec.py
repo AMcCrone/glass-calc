@@ -216,7 +216,12 @@ if st.button("Calculate Design Strength for All Load Cases"):
         })
         
     # --- After calculating df_results as before ---
+# --- After calculating df_results as before ---
 df_results = pd.DataFrame(results)
+
+# Ensure the Glass Design Strength column is numeric
+strength_col = "**Glass Design Strength $$f_{g;d}$$ (N/mm²)**"
+df_results[strength_col] = pd.to_numeric(df_results[strength_col], errors='coerce')
 
 # Define a helper function to blend two hex colors given a fraction (0 to 1)
 def blend_hex_color(hex1, hex2, fraction):
@@ -233,15 +238,18 @@ def blend_hex_color(hex1, hex2, fraction):
     return f'#{r:02x}{g:02x}{b:02x}'
 
 # Define a function that will style each row based on the Glass Design Strength value.
-# We choose low_color as the low end of viridis and high_color as the high end.
 def style_row_custom(row):
-    # Endpoint colors from viridis (approximate)
-    low_color = "#440154"   # dark purple
-    high_color = "#fde725"  # bright yellow
-    strength = row["**Glass Design Strength $$f_{g;d}$$ (N/mm²)**"]
-    # Normalize using min and max of the column
-    vmin = df_results["**Glass Design Strength $$f_{g;d}$$ (N/mm²)**"].min()
-    vmax = df_results["**Glass Design Strength $$f_{g;d}$$ (N/mm²)**"].max()
+    low_color = "#440154"   # dark purple (low strength)
+    high_color = "#fde725"  # bright yellow (high strength)
+    try:
+        strength = float(row[strength_col])
+    except (ValueError, TypeError):
+        # If the value is not numeric, return no style.
+        return [''] * len(row)
+    # Get the overall min and max from the column (precomputed)
+    vmin = df_results[strength_col].min()
+    vmax = df_results[strength_col].max()
+    # Compute the normalized fraction safely
     if vmax > vmin:
         fraction = (strength - vmin) / (vmax - vmin)
     else:
@@ -252,6 +260,7 @@ def style_row_custom(row):
 
 # Now display the styled DataFrame in Streamlit
 st.dataframe(df_results.style.apply(style_row_custom, axis=1))
+
 
 # =============================================================================
 # Interlayer Relaxation Modulus 3D Plot Section
