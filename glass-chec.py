@@ -142,12 +142,12 @@ ke_value = ke_options[ke_choice]
 f_gk_value = 45
 
 # Define material partial safety factors:
- if glass_category == "basic":
-     gamma_MA = 1.6 if standard == "IStructE Structural Use of Glass in Buildings" else 1.8
-     gamma_MV = None
- else:
-     gamma_MA = 1.6 if standard == "IStructE Structural Use of Glass in Buildings" else 1.8
-     gamma_MV = 1.2
+if glass_category == "basic":
+    gamma_MA = 1.6 if standard == "IStructE Structural Use of Glass in Buildings" else 1.8
+    gamma_MV = None
+else:
+    gamma_MA = 1.6 if standard == "IStructE Structural Use of Glass in Buildings" else 1.8
+    gamma_MV = 1.2
 
 # 6. Load duration factors (k_{mod}) – full table of options
 kmod_options = {
