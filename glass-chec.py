@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objs as go
+import matplotlib.colors as mcolors
+import matplotlib.cm as cm
 
 # Retrieve the password from secrets
 PASSWORD = st.secrets["password"]
@@ -214,7 +216,24 @@ if st.button("Calculate Design Strength for All Load Cases"):
         })
         
     df_results = pd.DataFrame(results)
-    st.table(df_results)
+ 
+    def vidaris_color(val, vmin, vmax):
+        # Normalize the value between 0 and 1
+        norm = (val - vmin) / (vmax - vmin) if vmax > vmin else 0
+        # Get the color from the colormap (replace 'viridis' with your custom colormap if available)
+        cmap = cm.get_cmap('viridis')
+        return mcolors.to_hex(cmap(norm))
+
+    vmin = df_results["**Glass Design Strength $$f_{g;d}$$ (N/mm²)**"].min()
+    vmax = df_results["**Glass Design Strength $$f_{g;d}$$ (N/mm²)**"].max()
+
+    def style_row(row):
+        strength = row["**Glass Design Strength $$f_{g;d}$$ (N/mm²)**"]
+        color = vidaris_color(strength, vmin, vmax)
+        return ['background-color: ' + color] * len(row)
+
+    # Display the styled DataFrame in the app
+    st.dataframe(df_results.style.apply(style_row, axis=1))
 
 # =============================================================================
 # 2D Plot: Theoretical Load Duration Factor (k_mod)
