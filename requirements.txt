@@ -6,3 +6,5 @@ openpyxl
 kaleido
 PyPDF2
 matplotlib
+io
+fpdf2
