@@ -141,6 +141,14 @@ ke_value = ke_options[ke_choice]
 # Fixed design value for glass (f_{g;k}) is always 45 N/mm².
 f_gk_value = 45
 
+# Define material partial safety factors:
+ if glass_category == "basic":
+     gamma_MA = 1.6 if standard == "IStructE Structural Use of Glass in Buildings" else 1.8
+     gamma_MV = None
+ else:
+     gamma_MA = 1.6 if standard == "IStructE Structural Use of Glass in Buildings" else 1.8
+     gamma_MV = 1.2
+
 # 6. Load duration factors (k_{mod}) – full table of options
 kmod_options = {
     "5 seconds – Single gust (Blast Load)": 1.00,
