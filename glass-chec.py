@@ -140,7 +140,7 @@ ke_value = ke_options[ke_choice]
 
 # Fixed design value for glass (f_{g;k}) is always 45 N/mm².
 f_gk_value = 45
-st.markdown(f"**Fixed design value for glass f_{{g;k}}: {f_gk_value} N/mm²**")
+st.markdown(f"**Fixed design value for glass f_{g;k}: {f_gk_value} N/mm²**")
 
 # Define material partial safety factors:
 if glass_category == "basic":
