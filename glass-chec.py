@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objs as go
+from fpdf import FPDF
 # -----------------------
 # Authentication Section
 # -----------------------
