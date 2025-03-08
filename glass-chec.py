@@ -82,6 +82,12 @@ standard = st.selectbox(
     ["IStructE Structural Use of Glass in Buildings", "EN 16612"],
 )
 
+with st.expander("Help?"):
+    st.markdown(
+        "TT suggests limiting the standard EN 16612 for calculating the lateral load resistance of linearly supported glazed elements used as infill panels in a class of consequences lower than those covered in EN 1990. Thus, for all the structural glazing elements (such as floor plate, wall, beams, columns, or glass panel with point fixing), it is recommended the use of the IStructE Book."
+        "Please, choose between EN-16612 & IStructE Book and not the DIN 18008, as not contemplated in the UK codes of practise."
+    )
+
 # 1. Characteristic bending strength (f_{b;k})
 fbk_options = {
     "Annealed (EN-572-1, 45 N/mm²)": {"value": 45, "category": "annealed"},
@@ -147,7 +153,7 @@ ke_options = {
 ke_choice = st.selectbox("Edge strength factor $$k_{e}$$", list(ke_options.keys()))
 ke_value = ke_options[ke_choice]
 
-with st.expander("Help for Edge Strength Factor"):
+with st.expander("Help?"):
     st.markdown(
         "Note 7: According to EN 16612 - Where glass edges are not stressed in bending (e.g. a pane with all edges supported) **ke = 1**. "
         "If glass edges are stressed in bending (e.g. a pane with two opposite edges supported or with three edges supported), **ke** can be lower than 1.0.\n\n"
@@ -207,7 +213,7 @@ selected_loads = st.multiselect(
     "Select load durations to highlight",
     options=list(kmod_options.keys())
 )
-with st.expander("Help for Load Duration Factor (k_mod)"):
+with st.expander("Help?"):
     st.markdown(
         "Note 4: Values in Table \"4. Factor for load duration\" in this sheet are from IStructE. Similar values are found in BS 16612. "
         "Generally, for t being the load duration in hours, **kmod = 0.663t^-1/16**.\n\n"
