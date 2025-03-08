@@ -207,7 +207,6 @@ def style_load_row(row):
 # Apply the style function and display the styled DataFrame.
 df_styled = df_results.style.apply(style_load_row, axis=1)
 st.subheader("Design Strength Results")
-st.dataframe(df_styled)
 # Display the DataFrame without the index column
 st.dataframe(df_styled.hide(axis="index"))
 
