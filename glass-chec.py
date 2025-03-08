@@ -188,7 +188,7 @@ for load_type, kmod_value in kmod_options.items():
     })
 df_results = pd.DataFrame(results)
 # Ensure the design strength column is numeric
-strength_col = "$$ f_{g;d} $$ (MPa)"
+strength_col = "**f_g;d** (MPa)""
 df_results[strength_col] = pd.to_numeric(df_results[strength_col], errors='coerce')
 st.subheader("Design Strength Results")
 st.dataframe(df_results)
