@@ -84,7 +84,7 @@ standard = st.selectbox(
 
 # 1. Characteristic bending strength (f_{b;k})
 fbk_options = {
-    "Annealed (EN-572-1, 45 N/mm²)": {"value": 45, "category": "basic"},
+    "Annealed (EN-572-1, 45 N/mm²)": {"value": 45, "category": "annealed"},
     "Heat strengthened (EN 1863-1, 70 N/mm²)": {"value": 70, "category": "prestressed"},
     "Heat strengthened patterned (EN 1863-1, 55 N/mm²)": {"value": 55, "category": "prestressed"},
     "Heat strengthened enamelled (EN 1863-1, 45 N/mm²)": {"value": 45, "category": "prestressed"},
@@ -142,7 +142,7 @@ ke_value = ke_options[ke_choice]
 f_gk_value = 45
 
 # Define material partial safety factors:
-if glass_category == "basic":
+if glass_category == "annealed":
     gamma_MA = 1.6 if standard == "IStructE Structural Use of Glass in Buildings" else 1.8
     gamma_MV = None
 else:
@@ -166,7 +166,7 @@ kmod_options = {
 # --- Auto-update Calculation for Design Strength Table ---
 results = []
 for load_type, kmod_value in kmod_options.items():
-    if glass_category == "basic":  # Annealed glass
+    if glass_category == "annealed":  # Annealed glass
         f_gd = (ke_value * kmod_value * ksp_value * f_gk_value) / gamma_MA
     else:  # Non-annealed glass
         if standard == "EN 16612":
@@ -315,7 +315,7 @@ st.markdown(
     r"""
 **Calculation Details:**
 
-The design strength is calculated using one of four equations depending on whether the glass is annealed (basic) or non-annealed (prestressed), and based on the selected standard.
+The design strength is calculated using one of four equations depending on whether the glass is annealed (annealed) or non-annealed (prestressed), and based on the selected standard.
 
 For **annealed glass**:  
 $$
@@ -367,11 +367,10 @@ def style_selected(row, selected_value, key='Option'):
 # -----------------------
 # Characteristic Bending Strength Options (f₍b;k₎)
 # -----------------------
-st.markdown("### Characteristic Bending Strength Options")
+st.markdown("### $$ f_{b;k} $$ - Characteristic Bending Strength")
 df_fbk = pd.DataFrame({
     "Option": list(fbk_options.keys()),
-    "Value (N/mm²)": [fbk_options[k]["value"] for k in fbk_options],
-    "Category": [fbk_options[k]["category"] for k in fbk_options]
+    "Value (N/mm²)": [fbk_options[k]["value"] for k in fbk_options]
 }).round(2)
 df_fbk_styled = df_fbk.style.apply(lambda row: style_selected(row, fbk_choice, key="Option"), axis=1)
 st.dataframe(df_fbk_styled.hide(axis="index"))
@@ -379,7 +378,7 @@ st.dataframe(df_fbk_styled.hide(axis="index"))
 # -----------------------
 # Glass Surface Profile Factor Options (kₛₚ)
 # -----------------------
-st.markdown("### Glass Surface Profile Factor Options")
+st.markdown("### $$ k_{sp} $$ - Glass Surface Profile Factor")
 df_ksp = pd.DataFrame({
     "Option": list(ksp_options.keys()),
     "Value": list(ksp_options.values())
@@ -390,7 +389,7 @@ st.dataframe(df_ksp_styled.hide(axis="index"))
 # -----------------------
 # Surface Finish Factor Options (k'ₛₚ)
 # -----------------------
-st.markdown("### Surface Finish Factor Options")
+st.markdown("### $$ k'_{sp} $$ - Surface Finish Factor")
 df_ksp_prime = pd.DataFrame({
     "Option": list(ksp_prime_options.keys()),
     "Value": list(ksp_prime_options.values())
@@ -401,7 +400,7 @@ st.dataframe(df_ksp_prime_styled.hide(axis="index"))
 # -----------------------
 # Strengthening Factor Options (kᵥ)
 # -----------------------
-st.markdown("### Strengthening Factor Options")
+st.markdown("### $$ k_{v} $$ - Strengthening Factor")
 df_kv = pd.DataFrame({
     "Option": list(kv_options.keys()),
     "Value": list(kv_options.values())
@@ -412,7 +411,7 @@ st.dataframe(df_kv_styled.hide(axis="index"))
 # -----------------------
 # Edge Strength Factor Options (kₑ)
 # -----------------------
-st.markdown("### Edge Strength Factor Options")
+st.markdown("### $$ k_{e} $$ - Edge Strength Factor")
 df_ke = pd.DataFrame({
     "Option": list(ke_options.keys()),
     "Value": list(ke_options.values())
@@ -423,7 +422,7 @@ st.dataframe(df_ke_styled.hide(axis="index"))
 # -----------------------
 # Load Duration Factor Options (k_mod)
 # -----------------------
-st.markdown("### Load Duration Factor Options (k_mod)")
+st.markdown("### $$ k_{mod} $$ - Load Duration Factor Options (k_mod)")
 df_kmod = pd.DataFrame({
     "Load Type": list(kmod_options.keys()),
     "k_mod": list(kmod_options.values())
