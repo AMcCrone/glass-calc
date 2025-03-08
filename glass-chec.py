@@ -8,11 +8,11 @@ import plotly.graph_objs as go
 # -----------------------
 # Retrieve the password from secrets
 PASSWORD = st.secrets["password"]
- 
+
 # Initialize authentication state
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
- 
+
 def check_password():
     """Check the password input against the secret password."""
     if st.session_state.get("password_input") == PASSWORD:
@@ -63,52 +63,16 @@ st.sidebar.markdown("""
 ## Navigation
 - [Glass Design Strength Calculator](#glass-design-strength-calculator)
 - [Interlayer Relaxation Modulus 3D Plot](#interlayer-relaxation-modulus-3d-plot)
+- [Documentation](#documentation)
 """, unsafe_allow_html=True)
 
-# -----------------------
+# =============================================================================
 # Glass Design Strength Calculator Section
-# -----------------------
+# =============================================================================
 st.markdown("<a name='glass-design-strength-calculator'></a>", unsafe_allow_html=True)
 st.title("Glass Design Strength Calculator")
-st.markdown(
-    r"""
-This app calculates the design strength of glass based on two standards:
-- **EN 16612**
-- **IStructE Structural Use of Glass in Buildings**
 
-The design strength is calculated using one of four equations depending on whether the glass is annealed (basic) or not, and on the selected standard.
-
-For **annealed glass** (basic):
-$$
-f_{g;d} = \frac{k_e \, k_{mod} \, k_{sp} \, f_{g;k}}{\gamma_{M;A}}
-$$
-
-For **all but annealed glass**:
-- **EN 16612:**
-$$
-f_{g;d} = \frac{k_e \, k_{mod} \, k_{sp} \, f_{g;k}}{\gamma_{M;A}} + \frac{k_v \,(f_{b;k} - f_{g;k})}{\gamma_{M;v}}
-$$
-- **IStructE:**
-$$
-f_{g;d} = \left(\frac{k_{mod} \, k_{sp} \, f_{g;k}}{\gamma_{M;A}} + \frac{k_v \,(f_{b;k} - f_{g;k})}{\gamma_{M;v}}\right) k_e
-$$
-
-where:
-- $$ f_{b;k} $$ is the characteristic bending strength (N/mm²),
-- $$ k_{sp} $$ is the glass surface profile factor,
-- $$ k'_{sp} $$ is the surface finish factor (**None** = 1, **Sand blasted** = 0.6, **Acid etched** = 1),
-- $$ k_{v} $$ is the strengthening factor,
-- $$ k_{e} $$ is the edge strength factor,
-- $$ k_{mod} $$ is the load duration factor,
-- $$ f_{g;k} $$ is the design value for glass (fixed at 45 N/mm²),
-- For annealed glass:
-  - IStructE: $$ \gamma_{M;A} = 1.6 $$  
-  - EN 16612: $$ \gamma_{M;A} = 1.8 $$
-- For surface prestressed (non-annealed) glass:
-  - $$ \gamma_{M;v} = 1.2 $$.
-        """,
-    unsafe_allow_html=True,
-)
+# (No lengthy explanation text here; it is moved to Documentation)
 
 st.header("Input Parameters")
 
@@ -206,33 +170,32 @@ kmod_options = {
     "50 years – Permanent": 0.29,
 }
 
-# Calculation for each load duration case
-if st.button("Calculate Design Strength for All Load Cases"):
-    results = []
-    for load_type, kmod_value in kmod_options.items():
-        if glass_category == "basic":  # Annealed glass
-            f_gd = (ke_value * kmod_value * ksp_value * f_gk_value) / gamma_MA
-        else:  # Non-annealed glass
-            if standard == "EN 16612":
-                f_gd = ((ke_value * kmod_value * ksp_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)
-            else:  # IStructE
-                f_gd = (((kmod_value * ksp_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)) * ke_value
-    
-        results.append({
-            "Load Type": load_type,
-            "k_mod": f"{kmod_value:.2f}",
-            "fg;d (MPa)": f"{f_gd:.2f}"
-        })
-        
-    df_results = pd.DataFrame(results)
-    # Ensure the design strength column is numeric
-    strength_col = "fg;d (MPa)"
-    df_results[strength_col] = pd.to_numeric(df_results[strength_col], errors='coerce')
-    st.dataframe(df_results)
+# --- Auto-update Calculation for Design Strength Table ---
+results = []
+for load_type, kmod_value in kmod_options.items():
+    if glass_category == "basic":  # Annealed glass
+        f_gd = (ke_value * kmod_value * ksp_value * f_gk_value) / gamma_MA
+    else:  # Non-annealed glass
+        if standard == "EN 16612":
+            f_gd = ((ke_value * kmod_value * ksp_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)
+        else:  # IStructE
+            f_gd = (((kmod_value * ksp_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)) * ke_value
 
-# -----------------------
+    results.append({
+        "Load Type": load_type,
+        "k_mod": f"{kmod_value:.2f}",
+        "fg;d (MPa)": f"{f_gd:.2f}"
+    })
+df_results = pd.DataFrame(results)
+# Ensure the design strength column is numeric
+strength_col = "fg;d (MPa)"
+df_results[strength_col] = pd.to_numeric(df_results[strength_col], errors='coerce')
+st.subheader("Design Strength Results")
+st.dataframe(df_results)
+
+# =============================================================================
 # Interlayer Relaxation Modulus 3D Plot Section
-# -----------------------
+# =============================================================================
 st.markdown("<a name='interlayer-relaxation-modulus-3d-plot'></a>", unsafe_allow_html=True)
 st.title("Interlayer Relaxation Modulus 3D Plot")
 
@@ -302,6 +265,7 @@ trace_all = go.Scatter3d(
     ),
     name="All Data"
 )
+# Change the selected point to a red circle (symbol "circle") of the same size (12)
 trace_highlight = go.Scatter3d(
     x=[highlight_x] if highlight_x is not None else [],
     y=[highlight_y] if highlight_y is not None else [],
@@ -310,7 +274,7 @@ trace_highlight = go.Scatter3d(
     marker=dict(
         size=12,
         color='red',
-        symbol='diamond'
+        symbol='circle'
     ),
     name="Selected Point"
 )
@@ -329,3 +293,50 @@ fig3d.update_layout(
     margin=dict(l=0, r=0, b=0, t=0)
 )
 st.plotly_chart(fig3d, use_container_width=True)
+
+# =============================================================================
+# Documentation Section
+# =============================================================================
+st.markdown("<a name='documentation'></a>", unsafe_allow_html=True)
+st.title("Documentation")
+st.markdown(
+    r"""
+**Calculation Details:**
+
+The design strength is calculated using one of four equations depending on whether the glass is annealed (basic) or non-annealed (prestressed), and based on the selected standard.
+
+For **annealed glass** (basic):  
+$$
+f_{g;d} = \frac{k_e \, k_{mod} \, k_{sp} \, f_{g;k}}{\gamma_{M;A}}
+$$
+
+For **non-annealed glass**:  
+- **EN 16612:**  
+$$
+f_{g;d} = \frac{k_e \, k_{mod} \, k_{sp} \, f_{g;k}}{\gamma_{M;A}} + \frac{k_v \,(f_{b;k} - f_{g;k})}{\gamma_{M;v}}
+$$
+- **IStructE:**  
+$$
+f_{g;d} = \left(\frac{k_{mod} \, k_{sp} \, f_{g;k}}{\gamma_{M;A}} + \frac{k_v \,(f_{b;k} - f_{g;k})}{\gamma_{M;v}}\right) k_e
+$$
+
+**Parameters:**
+- $$ f_{b;k} $$: Characteristic bending strength (N/mm²)  
+- $$ k_{sp} $$: Glass surface profile factor  
+- $$ k'_{sp} $$: Surface finish factor (None = 1, Sand blasted = 0.6, Acid etched = 1)  
+- $$ k_{v} $$: Strengthening factor  
+- $$ k_{e} $$: Edge strength factor  
+- $$ k_{mod} $$: Load duration factor  
+- $$ f_{g;k} $$: Design value for glass (fixed at 45 N/mm²)
+
+**Material Partial Safety Factors:**
+- For annealed glass:  
+  - IStructE: $$ \gamma_{M;A} = 1.6 $$  
+  - EN 16612: $$ \gamma_{M;A} = 1.8 $$
+- For non-annealed glass:  
+  - $$ \gamma_{M;A} $$ as above and $$ \gamma_{M;v} = 1.2 $$
+
+*Note: Adjust any factors or assumptions as necessary to match your detailed model.*
+    """,
+    unsafe_allow_html=True,
+)
