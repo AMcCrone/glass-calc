@@ -117,7 +117,7 @@ ksp_prime_options = {
     "Sand blasted": 0.6,
     "Acid etched": 1.0,
 }
-ksp_prime_choice = st.selectbox("Surface finish factor $$k^'_{sp}$$", list(ksp_prime_options.keys()))
+ksp_prime_choice = st.selectbox("Surface finish factor $$k'_{sp}$$", list(ksp_prime_options.keys()))
 ksp_prime_value = ksp_prime_options[ksp_prime_choice]
 
 # 4. Strengthening factor (k_{v})
