@@ -371,7 +371,7 @@ df_fbk = pd.DataFrame({
     "Option": list(fbk_options.keys()),
     "Value (N/mm²)": [fbk_options[k]["value"] for k in fbk_options],
     "Category": [fbk_options[k]["category"] for k in fbk_options]
-})
+}).round(2)
 df_fbk_styled = df_fbk.style.apply(lambda row: style_selected(row, fbk_choice, key="Option"), axis=1)
 st.dataframe(df_fbk_styled.hide(axis="index"))
 
@@ -382,7 +382,7 @@ st.markdown("### Glass Surface Profile Factor Options")
 df_ksp = pd.DataFrame({
     "Option": list(ksp_options.keys()),
     "Value": list(ksp_options.values())
-})
+}).round(2)
 df_ksp_styled = df_ksp.style.apply(lambda row: style_selected(row, ksp_choice, key="Option"), axis=1)
 st.dataframe(df_ksp_styled.hide(axis="index"))
 
@@ -393,7 +393,7 @@ st.markdown("### Surface Finish Factor Options")
 df_ksp_prime = pd.DataFrame({
     "Option": list(ksp_prime_options.keys()),
     "Value": list(ksp_prime_options.values())
-})
+}).round(2)
 df_ksp_prime_styled = df_ksp_prime.style.apply(lambda row: style_selected(row, ksp_prime_choice, key="Option"), axis=1)
 st.dataframe(df_ksp_prime_styled.hide(axis="index"))
 
@@ -404,7 +404,7 @@ st.markdown("### Strengthening Factor Options")
 df_kv = pd.DataFrame({
     "Option": list(kv_options.keys()),
     "Value": list(kv_options.values())
-})
+}).round(2)
 df_kv_styled = df_kv.style.apply(lambda row: style_selected(row, kv_choice, key="Option"), axis=1)
 st.dataframe(df_kv_styled.hide(axis="index"))
 
@@ -415,7 +415,7 @@ st.markdown("### Edge Strength Factor Options")
 df_ke = pd.DataFrame({
     "Option": list(ke_options.keys()),
     "Value": list(ke_options.values())
-})
+}).round(2)
 df_ke_styled = df_ke.style.apply(lambda row: style_selected(row, ke_choice, key="Option"), axis=1)
 st.dataframe(df_ke_styled.hide(axis="index"))
 
@@ -426,7 +426,7 @@ st.markdown("### Load Duration Factor Options (k_mod)")
 df_kmod = pd.DataFrame({
     "Load Type": list(kmod_options.keys()),
     "k_mod": list(kmod_options.values())
-})
+}).round(2)
 # Use the style function already defined in the app to highlight selected rows.
 df_kmod_styled = df_kmod.style.apply(style_load_row, axis=1)
 st.dataframe(df_kmod_styled.hide(axis="index"))
