@@ -151,10 +151,10 @@ else:
     gamma_MV = 1.2
 
 if glass_category == "basic":
-    st.markdown(f"**Selected material partial safety factor γ_(M;A): {gamma_MA}**")
+    st.markdown(f"**Selected material partial safety factor $$\gamma_{{M;A}}$$: {gamma_MA}**")
 else:
-    st.markdown(f"**Selected material partial safety factor γ_(M;A): {gamma_MA}**")
-    st.markdown(f"**Selected material partial safety factor γ_(M;v): {gamma_MV}**")
+    st.markdown(f"**Selected material partial safety factor $$\gamma_{{M;A}}$$: {gamma_MA}**")
+    st.markdown(f"**Selected material partial safety factor $$\gamma_{{M;V}}$$: {gamma_MV}**")
 
 # 6. Load duration factors (k_{mod}) – full table of options
 kmod_options = {
@@ -183,8 +183,8 @@ for load_type, kmod_value in kmod_options.items():
 
     results.append({
         "Load Type": load_type,
-        "$$ k_{mod} $$": f"{kmod_value:.2f}",
-        "$$ f_{g;d} $$ (MPa)": f"{f_gd:.2f}"
+        "$$ k_{{mod}} $$": f"{kmod_value:.2f}",
+        "$$ f_{{g;d}} $$ (MPa)": f"{f_gd:.2f}"
     })
 df_results = pd.DataFrame(results)
 # Ensure the design strength column is numeric
