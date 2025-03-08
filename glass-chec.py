@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objs as go
 import io
-from fpdf import FPDF
+from fpdf2 import FPDF
 # -----------------------
 # Authentication Section
 # -----------------------
