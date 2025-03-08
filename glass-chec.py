@@ -108,7 +108,7 @@ ksp_options = {
     "Polished wired glass": 0.75,
     "Patterned wired glass": 0.6,
 }
-ksp_choice = st.selectbox("Glass surface profile factor k_{sp}", list(ksp_options.keys()))
+ksp_choice = st.selectbox("Glass surface profile factor $$k_{sp}$$", list(ksp_options.keys()))
 ksp_value = ksp_options[ksp_choice]
 
 # 3. Surface finish factor (k'_{sp})
@@ -117,7 +117,7 @@ ksp_prime_options = {
     "Sand blasted": 0.6,
     "Acid etched": 1.0,
 }
-ksp_prime_choice = st.selectbox("Surface finish factor k'_{sp}", list(ksp_prime_options.keys()))
+ksp_prime_choice = st.selectbox("Surface finish factor $$k^'_{sp}$$", list(ksp_prime_options.keys()))
 ksp_prime_value = ksp_prime_options[ksp_prime_choice]
 
 # 4. Strengthening factor (k_{v})
@@ -125,7 +125,7 @@ kv_options = {
     "Horizontal toughening": 1.0,
     "Vertical toughening": 0.6,
 }
-kv_choice = st.selectbox("Strengthening factor k_{v}", list(kv_options.keys()))
+kv_choice = st.selectbox("Strengthening factor $$k_{v}$$", list(kv_options.keys()))
 kv_value = kv_options[kv_choice]
 
 # 5. Edge strength factor (k_{e})
@@ -135,7 +135,7 @@ ke_options = {
     "Seamed float edges": 0.9,
     "Other edge types": 0.8,
 }
-ke_choice = st.selectbox("Edge strength factor k_{e}", list(ke_options.keys()))
+ke_choice = st.selectbox("Edge strength factor $$k_{e}$$", list(ke_options.keys()))
 ke_value = ke_options[ke_choice]
 
 # Fixed design value for glass (f_{g;k}) is always 45 N/mm².
