@@ -489,20 +489,20 @@ def generate_pdf():
     pdf.cell(0, 10, txt=f"- Edge strength factor: {ke_choice} (Value: {ke_value})", ln=True)
     pdf.cell(0, 10, txt=f"- Design value for glass: {f_gk_value} N/mm²", ln=True)
     if glass_category != "annealed":
-        pdf.cell(0, 10, txt=f"- Material partial safety factors: γ_MA = {gamma_MA}, γ_MV = {gamma_MV}", ln=True)
+        pdf.cell(0, 10, txt=f"- Material partial safety factors: gamma_MA = {gamma_MA}, gamma_MV = {gamma_MV}", ln=True)
     else:
-        pdf.cell(0, 10, txt=f"- Material partial safety factor: γ_MA = {gamma_MA}", ln=True)
+        pdf.cell(0, 10, txt=f"- Material partial safety factor: gamma_MA = {gamma_MA}", ln=True)
     
     pdf.ln(8)
     
     # Design Stress Results Table
     pdf.cell(0, 10, txt="Design Stress Results:", ln=True)
     # Table header
-    pdf.set_font("Symbol", "B", 12)
+    pdf.set_font("Arial", "B", 12)
     pdf.cell(60, 10, txt="Load Type", border=1)
     pdf.cell(40, 10, txt="k_mod", border=1)
     pdf.cell(40, 10, txt="f_g;d (MPa)", border=1, ln=True)
-    pdf.set_font("Symbol", size=12)
+    pdf.set_font("Arial", size=12)
     
     # Table rows
     for index, row in df_results.iterrows():
