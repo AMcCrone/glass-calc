@@ -555,12 +555,11 @@ def generate_pdf():
     for key, val in kmod_options.items():
         pdf.cell(0, 10, txt=f"{key}: {val}", ln=True)
 
-    return pdf.output(dest="S")
+    # Final output with encoding
+    pdf_output = pdf.output(dest="S")
+    return pdf_output.encode("latin1")  # Critical fix
 
 # Report Section
-st.markdown("<a name='report'></a>", unsafe_allow_html=True)
-st.title("Report")
-
 if st.button("Save Report as PDF"):
     pdf_bytes = generate_pdf()
     st.download_button(
