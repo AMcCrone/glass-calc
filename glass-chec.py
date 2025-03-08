@@ -506,11 +506,11 @@ def generate_pdf():
     
     # Design Stress Results Table
     pdf.cell(0, 10, txt="Design Stress Results:", ln=True)
-    pdf.set_font("SourceSans", "B", 12)
+    pdf.set_font("Helvetica", "B", 12)
     pdf.cell(60, 10, txt="Load Type", border=1)
     pdf.cell(40, 10, txt="k_mod", border=1)
     pdf.cell(40, 10, txt="f_g;d (MPa)", border=1, ln=True)
-    pdf.set_font("SourceSans", "", 12)
+    pdf.set_font("Helvetica", "", 12)
     
     for index, row in df_results.iterrows():
         pdf.cell(60, 10, txt=str(row["Load Type"]), border=1)
