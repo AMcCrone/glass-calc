@@ -215,52 +215,43 @@ if st.button("Calculate Design Strength for All Load Cases"):
             "**Glass Design Strength $$f_{g;d}$$ (N/mm²)**": f"{f_gd:.2f}"
         })
         
-    df_results = pd.DataFrame(results)
- 
-    def vidaris_color(val, vmin, vmax):
-        # Normalize the value between 0 and 1
-        norm = (val - vmin) / (vmax - vmin) if vmax > vmin else 0
-        # Get the color from the colormap (replace 'viridis' with your custom colormap if available)
-        cmap = cm.get_cmap('viridis')
-        return mcolors.to_hex(cmap(norm))
+    # --- After calculating df_results as before ---
+df_results = pd.DataFrame(results)
 
+# Define a helper function to blend two hex colors given a fraction (0 to 1)
+def blend_hex_color(hex1, hex2, fraction):
+    # Remove the leading '#' if present
+    hex1 = hex1.lstrip('#')
+    hex2 = hex2.lstrip('#')
+    # Convert hex to RGB components
+    r1, g1, b1 = (int(hex1[i:i+2], 16) for i in (0, 2, 4))
+    r2, g2, b2 = (int(hex2[i:i+2], 16) for i in (0, 2, 4))
+    # Linear interpolation for each channel
+    r = int(r1 + (r2 - r1) * fraction)
+    g = int(g1 + (g2 - g1) * fraction)
+    b = int(b1 + (b2 - b1) * fraction)
+    return f'#{r:02x}{g:02x}{b:02x}'
+
+# Define a function that will style each row based on the Glass Design Strength value.
+# We choose low_color as the low end of viridis and high_color as the high end.
+def style_row_custom(row):
+    # Endpoint colors from viridis (approximate)
+    low_color = "#440154"   # dark purple
+    high_color = "#fde725"  # bright yellow
+    strength = row["**Glass Design Strength $$f_{g;d}$$ (N/mm²)**"]
+    # Normalize using min and max of the column
     vmin = df_results["**Glass Design Strength $$f_{g;d}$$ (N/mm²)**"].min()
     vmax = df_results["**Glass Design Strength $$f_{g;d}$$ (N/mm²)**"].max()
+    if vmax > vmin:
+        fraction = (strength - vmin) / (vmax - vmin)
+    else:
+        fraction = 0
+    color = blend_hex_color(low_color, high_color, fraction)
+    # Apply the same background color to all cells in the row
+    return ['background-color: ' + color] * len(row)
 
-    def style_row(row):
-        strength = row["**Glass Design Strength $$f_{g;d}$$ (N/mm²)**"]
-        color = vidaris_color(strength, vmin, vmax)
-        return ['background-color: ' + color] * len(row)
-
-    # Display the styled DataFrame in the app
-    st.dataframe(df_results.style.apply(style_row, axis=1))
-
-# =============================================================================
-# 2D Plot: Theoretical Load Duration Factor (k_mod)
-# =============================================================================
-st.subheader("Theoretical Load Duration Factor (k_mod)")
-t_values = np.logspace(0, np.log10(1.6e9), 200)
-k_mod_theoretical = 0.663 * t_values**(-1/16)
-
-trace = go.Scatter(
-    x=t_values,
-    y=k_mod_theoretical,
-    mode="lines",
-    name=r"$k_{mod} = 0.663\,t^{-1/16}$"
-)
-layout = go.Layout(
-    xaxis=dict(
-        title="Loading Duration",
-        type="log",
-        tickvals=tickvals,
-        ticktext=ticktext
-    ),
-    yaxis=dict(title="k_mod"),
-    legend=dict(x=0.05, y=0.95),
-    template="plotly_white"
-)
-fig2d = go.Figure(data=[trace], layout=layout)
-st.plotly_chart(fig2d, use_container_width=True)
+# Now display the styled DataFrame in Streamlit
+st.dataframe(df_results.style.apply(style_row_custom, axis=1))
 
 # =============================================================================
 # Interlayer Relaxation Modulus 3D Plot Section
