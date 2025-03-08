@@ -498,11 +498,11 @@ def generate_pdf():
     # Design Stress Results Table
     pdf.cell(0, 10, txt="Design Stress Results:", ln=True)
     # Table header
-    pdf.set_font("Arial", "B", 12)
+    pdf.set_font("Symbol", "B", 12)
     pdf.cell(60, 10, txt="Load Type", border=1)
     pdf.cell(40, 10, txt="k_mod", border=1)
     pdf.cell(40, 10, txt="f_g;d (MPa)", border=1, ln=True)
-    pdf.set_font("Arial", size=12)
+    pdf.set_font("Symbol", size=12)
     
     # Table rows
     for index, row in df_results.iterrows():
