@@ -183,8 +183,8 @@ for load_type, kmod_value in kmod_options.items():
 
     results.append({
         "Load Type": load_type,
-        "k_mod": f"{kmod_value:.2f}",
-        "fg;d (MPa)": f"{f_gd:.2f}"
+        "$$ k_{mod} $$": f"{kmod_value:.2f}",
+        "$$ f_{g;d} $$ (MPa)": f"{f_gd:.2f}"
     })
 df_results = pd.DataFrame(results)
 # Ensure the design strength column is numeric
@@ -305,12 +305,12 @@ st.markdown(
 
 The design strength is calculated using one of four equations depending on whether the glass is annealed (basic) or non-annealed (prestressed), and based on the selected standard.
 
-For **annealed glass** (basic):  
+For **annealed glass**:  
 $$
 f_{g;d} = \frac{k_e \, k_{mod} \, k_{sp} \, f_{g;k}}{\gamma_{M;A}}
 $$
 
-For **non-annealed glass**:  
+For **pre-stressed glass**:  
 - **EN 16612:**  
 $$
 f_{g;d} = \frac{k_e \, k_{mod} \, k_{sp} \, f_{g;k}}{\gamma_{M;A}} + \frac{k_v \,(f_{b;k} - f_{g;k})}{\gamma_{M;v}}
@@ -335,8 +335,6 @@ $$
   - EN 16612: $$ \gamma_{M;A} = 1.8 $$
 - For non-annealed glass:  
   - $$ \gamma_{M;A} $$ as above and $$ \gamma_{M;v} = 1.2 $$
-
-*Note: Adjust any factors or assumptions as necessary to match your detailed model.*
     """,
     unsafe_allow_html=True,
 )
