@@ -147,6 +147,15 @@ ke_options = {
 ke_choice = st.selectbox("Edge strength factor $$k_{e}$$", list(ke_options.keys()))
 ke_value = ke_options[ke_choice]
 
+with st.expander("Help for Edge Strength Factor"):
+    st.markdown(
+        "Note 7: According to EN 16612 - Where glass edges are not stressed in bending (e.g. a pane with all edges supported) **ke = 1**. "
+        "If glass edges are stressed in bending (e.g. a pane with two opposite edges supported or with three edges supported), **ke** can be lower than 1.0.\n\n"
+        "Note 8: EN 16612 only applies edge strength factor to annealed glass and not to prestressed glass. "
+        "IStructE applies edge strength factor to both annealed and prestressed glass.\n\n"
+        "Note 9: Seamed edges are arrissed or ground edges by machine or by hand where the abrasive action is along the length of the edge."
+    )
+
 # Fixed design value for glass (f_{g;k}) is always 45 N/mm².
 f_gk_value = 45
 
@@ -176,12 +185,12 @@ kmod_options = {
 results = []
 for load_type, kmod_value in kmod_options.items():
     if glass_category == "annealed":  # Annealed glass
-        f_gd = (ke_value * kmod_value * ksp_value * f_gk_value) / gamma_MA
+        f_gd = (ke_value * kmod_value * ksp_value * ksp_prime_value * f_gk_value) / gamma_MA
     else:  # Non-annealed glass
         if standard == "EN 16612":
-            f_gd = ((ke_value * kmod_value * ksp_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)
+            f_gd = ((ke_value * kmod_value * ksp_value * ksp_prime_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)
         else:  # IStructE
-            f_gd = (((kmod_value * ksp_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)) * ke_value
+            f_gd = (((kmod_value * ksp_value * ksp_prime_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)) * ke_value
 
     results.append({
         "Load Type": load_type,
@@ -198,6 +207,18 @@ selected_loads = st.multiselect(
     "Select load durations to highlight",
     options=list(kmod_options.keys())
 )
+with st.expander("Help for Load Duration Factor (k_mod)"):
+    st.markdown(
+        "Note 4: Values in Table \"4. Factor for load duration\" in this sheet are from IStructE. Similar values are found in BS 16612. "
+        "Generally, for t being the load duration in hours, **kmod = 0.663t^-1/16**.\n\n"
+        "Note 5: The value of **kmod = 0.74** is based on a cumulative equivalent duration of 10 min, considered representative of the effect of a storm which may last several hours. "
+        "Higher values of **kmod** can be considered for wind, but need to be justified (currently there is no guide for this).\n\n"
+        "Note 6: According to EN 16612 - Where loads with different durations need to be treated in combination, the proposed **kmod** for the load combination is the highest value, "
+        "which is associated with any of the loads in the combination.\n\n"
+        "How to select the right **kmod**? By choosing the highest **kmod** value for determining the glass resistance. "
+        "However, all load combinations should be considered; for example, for wind, snow and self-weight: "
+        "**kmod = 0.74 (or 1)** for wind, snow and self-weight; **kmod = 0.48** for snow and self-weight; **kmod = 0.29** for self-weight."
+    )
 
 # Define a styling function that applies the highlight color if the row's "Load Type" is selected.
 def style_load_row(row):
