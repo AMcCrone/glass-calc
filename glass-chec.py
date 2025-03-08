@@ -490,17 +490,17 @@ def generate_pdf():
     pdf.cell(0, 10, txt=f"Standard Used: {standard}", ln=True)
     pdf.ln(3)
     pdf.cell(0, 10, txt="Input Parameters:", ln=True)
-    pdf.cell(0, 10, txt=f"- Characteristic bending strength: {fbk_choice} (Value: {fbk_value} N/mm2, Category: {glass_category})", ln=True)
-    pdf.cell(0, 10, txt=f"- Glass surface profile factor: {ksp_choice} (Value: {ksp_value})", ln=True)
-    pdf.cell(0, 10, txt=f"- Surface finish factor: {ksp_prime_choice} (Value: {ksp_prime_value})", ln=True)
-    pdf.cell(0, 10, txt=f"- Strengthening factor: {kv_choice} (Value: {kv_value})", ln=True)
-    pdf.cell(0, 10, txt=f"- Edge strength factor: {ke_choice} (Value: {ke_value})", ln=True)
-    pdf.cell(0, 10, txt=f"- Design value for glass: {f_gk_value} N/mm2", ln=True)
+    pdf.cell(0, 10, txt=f"Characteristic bending strength: {fbk_choice} (Value: {fbk_value} N/mm2, Category: {glass_category})", ln=True)
+    pdf.cell(0, 10, txt=f"Glass surface profile factor: {ksp_choice} (Value: {ksp_value})", ln=True)
+    pdf.cell(0, 10, txt=f"Surface finish factor: {ksp_prime_choice} (Value: {ksp_prime_value})", ln=True)
+    pdf.cell(0, 10, txt=f"Strengthening factor: {kv_choice} (Value: {kv_value})", ln=True)
+    pdf.cell(0, 10, txt=f"Edge strength factor: {ke_choice} (Value: {ke_value})", ln=True)
+    pdf.cell(0, 10, txt=f"Design value for glass: {f_gk_value} N/mm2", ln=True)
     
     if glass_category != "annealed":
-        pdf.cell(0, 10, txt=f"- Material partial safety factors: gamma_MA = {gamma_MA}, gamma_MV = {gamma_MV}", ln=True)
+        pdf.cell(0, 10, txt=f"Material partial safety factors: gamma_MA = {gamma_MA}, gamma_MV = {gamma_MV}", ln=True)
     else:
-        pdf.cell(0, 10, txt=f"- Material partial safety factor: gamma_MA = {gamma_MA}", ln=True)
+        pdf.cell(0, 10, txt=f"Material partial safety factor: gamma_MA = {gamma_MA}", ln=True)
     
     pdf.ln(8)
     
