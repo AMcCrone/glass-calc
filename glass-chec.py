@@ -471,38 +471,34 @@ def generate_pdf():
     # Create a new PDF object in A4 format
     pdf = FPDF(format='A4')
     pdf.add_page()
+    
+    # Add Source Sans Pro fonts (replace paths with your actual file locations)
+    pdf.add_font("SourceSans", "", "SourceSansPro-Regular.ttf", uni=True)
+    pdf.add_font("SourceSans", "B", "SourceSansPro-Bold.ttf", uni=True)
+    
     pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.set_font("Arial", size=12)
+    pdf.set_font("SourceSans", "", 12)  # Use regular style by default
     
     # Report Title
+    pdf.set_font("SourceSans", "B", 16)  # Bold for title
     pdf.cell(0, 10, txt="Glass Calculation Report", ln=True, align="C")
     pdf.ln(5)
+    
+    # Reset to regular font for body
+    pdf.set_font("SourceSans", "", 12)
     
     # Report Summary: Standard and Input Parameters
     pdf.cell(0, 10, txt=f"Standard Used: {standard}", ln=True)
     pdf.ln(3)
     pdf.cell(0, 10, txt="Input Parameters:", ln=True)
-    pdf.cell(0, 10, txt=f"- Characteristic bending strength: {fbk_choice} (Value: {fbk_value} N/mm², Category: {glass_category})", ln=True)
-    pdf.cell(0, 10, txt=f"- Glass surface profile factor: {ksp_choice} (Value: {ksp_value})", ln=True)
-    pdf.cell(0, 10, txt=f"- Surface finish factor: {ksp_prime_choice} (Value: {ksp_prime_value})", ln=True)
-    pdf.cell(0, 10, txt=f"- Strengthening factor: {kv_choice} (Value: {kv_value})", ln=True)
-    pdf.cell(0, 10, txt=f"- Edge strength factor: {ke_choice} (Value: {ke_value})", ln=True)
-    pdf.cell(0, 10, txt=f"- Design value for glass: {f_gk_value} N/mm²", ln=True)
-    if glass_category != "annealed":
-        pdf.cell(0, 10, txt=f"- Material partial safety factors: gamma_MA = {gamma_MA}, gamma_MV = {gamma_MV}", ln=True)
-    else:
-        pdf.cell(0, 10, txt=f"- Material partial safety factor: gamma_MA = {gamma_MA}", ln=True)
-    
-    pdf.ln(8)
-    
-    # Design Stress Results Table
-    pdf.cell(0, 10, txt="Design Stress Results:", ln=True)
-    # Table header
-    pdf.set_font("Arial", "B", 12)
+    # ... rest of your existing PDF content ...
+
+    # Table header with bold
+    pdf.set_font("SourceSans", "B", 12)
     pdf.cell(60, 10, txt="Load Type", border=1)
     pdf.cell(40, 10, txt="k_mod", border=1)
     pdf.cell(40, 10, txt="f_g;d (MPa)", border=1, ln=True)
-    pdf.set_font("Arial", size=12)
+    pdf.set_font("SourceSans", "", 12)
     
     # Table rows
     for index, row in df_results.iterrows():
