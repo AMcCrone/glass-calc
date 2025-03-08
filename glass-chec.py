@@ -274,7 +274,8 @@ trace_all = go.Scatter3d(
         colorscale='Viridis',
         opacity=0.8
     ),
-    name="All Data"
+    name="All Data",
+    hovertemplate="Load Duration: %{x}<br>Temp.: %{y} °C<br>E(t): %{z} MPa"
 )
 # Change the selected point to a red circle (symbol "circle") of the same size (12)
 trace_highlight = go.Scatter3d(
