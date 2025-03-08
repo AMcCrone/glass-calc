@@ -94,7 +94,19 @@ fbk_options = {
     "Chemically toughened (EN 12337-1, 150 N/mm²)": {"value": 150, "category": "prestressed"},
     "Chemically toughened patterned (EN 12337-1, 100 N/mm²)": {"value": 100, "category": "prestressed"},
 }
-fbk_choice = st.selectbox("Characteristic bending strength $$f_{b;k}$$", list(fbk_options.keys()))
+
+# Create two columns: one for the selectbox and one for the help button.
+col1, col2 = st.columns([4, 1])
+with col1:
+    fbk_choice = st.selectbox("Characteristic bending strength $$f_{b;k}$$", list(fbk_options.keys()))
+with col2:
+    if st.button("Help?", key="help_fbk"):
+        st.info(
+            "Note 1: 'Prestressed glass' is the general term used for glass which has been subjected to a strengthening treatment, by heat or chemicals (e.g. heat strengthened, heat toughened, chemically toughened glass).\n\n"
+            "Note 2: 'Patterned glass' is glass that has passed through rollers to give it surface texture.\n\n"
+            "Note 3: 'Enamelled glass' is the same as fritted glass. It is glass which has a ceramic frit applied to the surface, by e.g. painting or screen printing, which is subsequently fired into the surface."
+        )
+
 fbk_value = fbk_options[fbk_choice]["value"]
 glass_category = fbk_options[fbk_choice]["category"]
 
