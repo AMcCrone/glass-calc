@@ -184,14 +184,33 @@ for load_type, kmod_value in kmod_options.items():
     results.append({
         "Load Type": load_type,
         "k_mod": f"{kmod_value:.2f}",
-        "f_g;d (MPa)": f"{f_gd:.2f}"
+        "fg;d (MPa)": f"{f_gd:.2f}"
     })
 df_results = pd.DataFrame(results)
 # Ensure the design strength column is numeric
-strength_col = "f_g;d (MPa)"
+strength_col = "fg;d (MPa)"
 df_results[strength_col] = pd.to_numeric(df_results[strength_col], errors='coerce')
+
+# Create a multiselect widget to choose load durations to highlight
+selected_loads = st.multiselect(
+    "Select load durations to highlight",
+    options=list(kmod_options.keys())
+)
+
+# Define a styling function that applies the highlight color if the row's "Load Type" is selected.
+def style_load_row(row):
+    if row["Load Type"] in selected_loads:
+        return ['background-color: #EB8C71'] * len(row)
+    else:
+        return [''] * len(row)
+
+# Apply the style function and display the styled DataFrame.
+df_styled = df_results.style.apply(style_load_row, axis=1)
 st.subheader("Design Strength Results")
-st.dataframe(df_results)
+st.dataframe(df_styled)
+# Display the DataFrame without the index column
+st.dataframe(df_styled.hide(axis="index"))
+
 
 # =============================================================================
 # Interlayer Relaxation Modulus 3D Plot Section
