@@ -140,21 +140,6 @@ ke_value = ke_options[ke_choice]
 
 # Fixed design value for glass (f_{g;k}) is always 45 N/mm².
 f_gk_value = 45
-st.markdown(f"**Fixed design value for glass $$f_{{g;k}}$$: {f_gk_value} N/mm²**")
-
-# Define material partial safety factors:
-if glass_category == "basic":
-    gamma_MA = 1.6 if standard == "IStructE Structural Use of Glass in Buildings" else 1.8
-    gamma_MV = None
-else:
-    gamma_MA = 1.6 if standard == "IStructE Structural Use of Glass in Buildings" else 1.8
-    gamma_MV = 1.2
-
-if glass_category == "basic":
-    st.markdown(f"**Selected material partial safety factor $$\gamma_{{M;A}}$$: {gamma_MA}**")
-else:
-    st.markdown(f"**Selected material partial safety factor $$\gamma_{{M;A}}$$: {gamma_MA}**")
-    st.markdown(f"**Selected material partial safety factor $$\gamma_{{M;V}}$$: {gamma_MV}**")
 
 # 6. Load duration factors (k_{mod}) – full table of options
 kmod_options = {
