@@ -4,3 +4,4 @@ numpy
 plotly
 io
 fpdf2
+openpyxl
