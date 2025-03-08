@@ -472,35 +472,47 @@ def generate_pdf():
     pdf = FPDF(format='A4')
     pdf.add_page()
     
-    # Add Source Sans Pro fonts (replace paths with your actual file locations)
+    # Add Source Sans Pro fonts
     pdf.add_font("SourceSans", "", "SourceSansPro-Regular.ttf", uni=True)
     pdf.add_font("SourceSans", "B", "SourceSansPro-Bold.ttf", uni=True)
     
     pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.set_font("SourceSans", "", 12)  # Use regular style by default
+    pdf.set_font("SourceSans", "", 12)
     
     # Report Title
-    pdf.set_font("SourceSans", "B", 16)  # Bold for title
+    pdf.set_font("SourceSans", "B", 16)
     pdf.cell(0, 10, txt="Glass Calculation Report", ln=True, align="C")
     pdf.ln(5)
     
-    # Reset to regular font for body
+    # Reset to regular font
     pdf.set_font("SourceSans", "", 12)
     
-    # Report Summary: Standard and Input Parameters
+    # Report Summary
     pdf.cell(0, 10, txt=f"Standard Used: {standard}", ln=True)
     pdf.ln(3)
     pdf.cell(0, 10, txt="Input Parameters:", ln=True)
-    # ... rest of your existing PDF content ...
-
-    # Table header with bold
+    pdf.cell(0, 10, txt=f"- Characteristic bending strength: {fbk_choice} (Value: {fbk_value} N/mm2, Category: {glass_category})", ln=True)
+    pdf.cell(0, 10, txt=f"- Glass surface profile factor: {ksp_choice} (Value: {ksp_value})", ln=True)
+    pdf.cell(0, 10, txt=f"- Surface finish factor: {ksp_prime_choice} (Value: {ksp_prime_value})", ln=True)
+    pdf.cell(0, 10, txt=f"- Strengthening factor: {kv_choice} (Value: {kv_value})", ln=True)
+    pdf.cell(0, 10, txt=f"- Edge strength factor: {ke_choice} (Value: {ke_value})", ln=True)
+    pdf.cell(0, 10, txt=f"- Design value for glass: {f_gk_value} N/mm2", ln=True)
+    
+    if glass_category != "annealed":
+        pdf.cell(0, 10, txt=f"- Material partial safety factors: gamma_MA = {gamma_MA}, gamma_MV = {gamma_MV}", ln=True)
+    else:
+        pdf.cell(0, 10, txt=f"- Material partial safety factor: gamma_MA = {gamma_MA}", ln=True)
+    
+    pdf.ln(8)
+    
+    # Design Stress Results Table
+    pdf.cell(0, 10, txt="Design Stress Results:", ln=True)
     pdf.set_font("SourceSans", "B", 12)
     pdf.cell(60, 10, txt="Load Type", border=1)
     pdf.cell(40, 10, txt="k_mod", border=1)
     pdf.cell(40, 10, txt="f_g;d (MPa)", border=1, ln=True)
     pdf.set_font("SourceSans", "", 12)
     
-    # Table rows
     for index, row in df_results.iterrows():
         pdf.cell(60, 10, txt=str(row["Load Type"]), border=1)
         pdf.cell(40, 10, txt=str(row["k_mod"]), border=1)
@@ -508,57 +520,44 @@ def generate_pdf():
     
     pdf.ln(8)
     
-    # Appendix: Full Parameter Tables
+    # Appendix
     pdf.cell(0, 10, txt="Appendix: Parameter Tables", ln=True)
     pdf.ln(3)
     
-    # Characteristic Bending Strength Options
+    # Parameter tables
     pdf.cell(0, 10, txt="Characteristic Bending Strength Options:", ln=True)
     for key, val in fbk_options.items():
-        line = f"{key}: {val['value']} N/mm², Category: {val['category']}"
+        line = f"{key}: {val['value']} N/mm2, Category: {val['category']}"
         pdf.cell(0, 10, txt=line, ln=True)
-    pdf.ln(3)
     
-    # Glass Surface Profile Factor Options
+    pdf.ln(3)
     pdf.cell(0, 10, txt="Glass Surface Profile Factor Options:", ln=True)
     for key, val in ksp_options.items():
-        line = f"{key}: {val}"
-        pdf.cell(0, 10, txt=line, ln=True)
-    pdf.ln(3)
+        pdf.cell(0, 10, txt=f"{key}: {val}", ln=True)
     
-    # Surface Finish Factor Options
+    pdf.ln(3)
     pdf.cell(0, 10, txt="Surface Finish Factor Options:", ln=True)
     for key, val in ksp_prime_options.items():
-        line = f"{key}: {val}"
-        pdf.cell(0, 10, txt=line, ln=True)
-    pdf.ln(3)
+        pdf.cell(0, 10, txt=f"{key}: {val}", ln=True)
     
-    # Strengthening Factor Options
+    pdf.ln(3)
     pdf.cell(0, 10, txt="Strengthening Factor Options:", ln=True)
     for key, val in kv_options.items():
-        line = f"{key}: {val}"
-        pdf.cell(0, 10, txt=line, ln=True)
-    pdf.ln(3)
+        pdf.cell(0, 10, txt=f"{key}: {val}", ln=True)
     
-    # Edge Strength Factor Options
+    pdf.ln(3)
     pdf.cell(0, 10, txt="Edge Strength Factor Options:", ln=True)
     for key, val in ke_options.items():
-        line = f"{key}: {val}"
-        pdf.cell(0, 10, txt=line, ln=True)
-    pdf.ln(3)
+        pdf.cell(0, 10, txt=f"{key}: {val}", ln=True)
     
-    # Load Duration Factor Options (k_mod)
+    pdf.ln(3)
     pdf.cell(0, 10, txt="Load Duration Factor Options (k_mod):", ln=True)
     for key, val in kmod_options.items():
-        line = f"{key}: {val}"
-        pdf.cell(0, 10, txt=line, ln=True)
-    
-    # Output PDF to a bytes buffer
-    pdf_output = pdf.output(dest="S").encode("latin1")
-    # Final output (remove .encode()):
-    return pdf.output(dest="S")  # Returns bytes directly
+        pdf.cell(0, 10, txt=f"{key}: {val}", ln=True)
 
-# Report Section with Save Report as PDF button
+    return pdf.output(dest="S")
+
+# Report Section
 st.markdown("<a name='report'></a>", unsafe_allow_html=True)
 st.title("Report")
 
