@@ -208,9 +208,9 @@ if st.button("Calculate Design Strength for All Load Cases"):
                 f_gd = (((kmod_value * ksp_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)) * ke_value
 
         results.append({
-            "Load Type": load_type,
-            "k_mod": kmod_value,
-            "Glass Design Strength $$f_{g;d}$$ (N/mm²)": f"{f_gd:.2f}"
+            "**Load Type**": load_type,
+            "**$$k_{mod}$$**": f"{kmod_value:.2f}",
+            "**Glass Design Strength $$f_{g;d}$$ (N/mm²)**": f"{f_gd:.2f}"
         })
         
     df_results = pd.DataFrame(results)
