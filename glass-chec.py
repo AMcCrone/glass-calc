@@ -472,25 +472,21 @@ def generate_pdf():
     pdf.add_page()
     pdf.set_font("Arial", size=12)
     
-    # Create a summary line that shows the standard and the characteristic bending strength selection.
+    # Create a simple summary line
     summary = (
         f"Calculation Summary:\n"
         f"Standard Used: {standard}\n"
         f"Characteristic Bending Strength: {fbk_choice}"
     )
-    
-    # Write the summary text in the PDF.
     pdf.multi_cell(0, 10, summary)
     
-    # Output PDF as a string or bytes.
+    # Generate PDF content as a string or bytearray
     pdf_content = pdf.output(dest="S")
-    
-    # If the returned value is a string, encode it to bytes. If it's already bytes (or a bytearray), use it directly.
+    # If the output is a string, encode it; if it's a bytearray, convert to bytes.
     if isinstance(pdf_content, str):
         pdf_bytes = pdf_content.encode("latin1")
     else:
-        pdf_bytes = pdf_content
-
+        pdf_bytes = bytes(pdf_content)
     return pdf_bytes
 
 st.title("Glass Calculation Report Generator")
