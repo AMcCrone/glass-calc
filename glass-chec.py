@@ -489,16 +489,16 @@ def generate_pdf():
     pdf.cell(0, 10, "Glass Stress Calculation Summary", ln=True, align="C")
     pdf.ln(5)
     
-    # Helper function to write a key-value pair (with wrapping if necessary)
-    # def write_key_value(key, value):
-    #     label_width = avail_width * 0.35  # 35% for the label
-    #     pdf.set_font("SourceSansPro", "B", 4)
-    #     pdf.cell(label_width, 10, key, ln=0)
-    #     pdf.set_font("SourceSansPro", "", 4)
-    #     pdf.multi_cell(0, 10, value)
+    Helper function to write a key-value pair (with wrapping if necessary)
+    def write_key_value(key, value):
+        label_width = avail_width * 0.5  # 50% for the label
+        pdf.set_font("SourceSansPro", "B", 4)
+        pdf.cell(label_width, 10, key, ln=0)
+        pdf.set_font("SourceSansPro", "", 4)
+        pdf.multi_cell(0, 10, value)
     
-    # write_key_value("Standard Used:", standard)
-    # pdf.ln(2)
+    write_key_value("Standard Used:", standard)
+    pdf.ln(2)
     
     # pdf.set_font("SourceSansProBlack", "", 14)
     # pdf.cell(0, 10, "Input Parameters:", ln=True)
