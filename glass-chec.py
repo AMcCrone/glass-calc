@@ -512,11 +512,11 @@ def generate_pdf():
     # # write_key_value("Edge Strength Factor:", f"{ke_choice} (Value: {ke_value})")
     # # write_key_value("Design Value for Glass:", f"{f_gk_value} N/mm2")
     
-    # if glass_category == "annealed":
-    #     write_key_value("Material Partial Safety Factor:", f"gamma_M_A = {gamma_MA}")
-    # else:
-    #     write_key_value("Material Partial Safety Factor:", f"gamma_M_A = {gamma_MA}, gamma_M_V = {gamma_MV}")
-    # pdf.ln(3)
+    if glass_category == "annealed":
+        write_key_value("Material Partial Safety Factor:", f"gamma_M_A = {gamma_MA}")
+    else:
+        write_key_value("Material Partial Safety Factor:", f"gamma_M_A = {gamma_MA}, gamma_M_V = {gamma_MV}")
+    pdf.ln(3)
     
     # -------------------------------------------
     # Design Stress Results Table for Load Durations
@@ -526,9 +526,9 @@ def generate_pdf():
     pdf.ln(2)
     
     # Define column widths: 50% for Load Type, 20% for k_mod, 30% for f_g;d.
-    w1 = avail_width * 0.5
+    w1 = avail_width * 0.6
     w2 = avail_width * 0.2
-    w3 = avail_width * 0.3
+    w3 = avail_width * 0.2
     
     # Table Header.
     pdf.set_font("SourceSansPro", "B", 12)
