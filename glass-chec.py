@@ -470,9 +470,9 @@ st.dataframe(df_kmod_styled.hide(axis="index"))
 def generate_pdf():
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_left_margin(15)
-    pdf.set_right_margin(15)
-    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.set_left_margin(10)
+    pdf.set_right_margin(10)
+    pdf.set_auto_page_break(auto=True, margin=10)
     
     # Add custom fonts.
     pdf.add_font("SourceSansProBlack", "", "fonts/SourceSansPro-Black.ttf", uni=True)
@@ -531,13 +531,13 @@ def generate_pdf():
     w3 = avail_width * 0.3
     
     # Table Header.
-    pdf.set_font("SourceSansPro", "B", 4)
+    pdf.set_font("SourceSansPro", "B", 12)
     pdf.cell(w1, 10, "Load Type", border=1, align="C")
     pdf.cell(w2, 10, "k_mod", border=1, align="C")
     pdf.cell(w3, 10, "f_g;d (MPa)", border=1, align="C", ln=True)
     
     # Set a smaller font for table rows.
-    pdf.set_font("SourceSansPro", "", 4)
+    pdf.set_font("SourceSansPro", "", 10)
     
     # Loop through each load duration option.
     for load_type, kmod_value in kmod_options.items():
