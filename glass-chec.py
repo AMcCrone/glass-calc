@@ -508,17 +508,11 @@ def generate_pdf():
     pdf.ln(2)
     
     # Write the input parameters on a single line each.
-    pdf.set_x(pdf.l_margin)
     write_key_value("Characteristic Bending Strength:", f"{fbk_choice} (Value: {fbk_value} N/mm2)")
-    pdf.set_x(pdf.l_margin)
     write_key_value("Glass Surface Profile Factor:", f"{ksp_choice} (Value: {ksp_value})")
-    pdf.set_x(pdf.l_margin)
     write_key_value("Surface Finish Factor:", f"{ksp_prime_choice} (Value: {ksp_prime_value})")
-    pdf.set_x(pdf.l_margin)
     write_key_value("Strengthening Factor:", f"{kv_choice} (Value: {kv_value})")
-    pdf.set_x(pdf.l_margin)
     write_key_value("Edge Strength Factor:", f"{ke_choice} (Value: {ke_value})")
-    pdf.set_x(pdf.l_margin)
     write_key_value("Design Value for Glass:", f"{f_gk_value} N/mm2")
     
     if glass_category == "annealed":
