@@ -518,21 +518,6 @@ def generate_pdf():
         write_key_value("Material Partial Safety Factor:", f"gamma_M_A = {gamma_MA}, gamma_M_V = {gamma_MV}")
     pdf.ln(3)
     
-    pdf.set_font("SourceSansProBlack", "", 14)
-    pdf.cell(0, 10, "Calculation Equation:", ln=True)
-    pdf.ln(2)
-    
-    pdf.set_font("SourceSansPro", "", 4)
-    if glass_category == "annealed":
-        equation_text = "f_g_d = (k_e * k_mod * k_sp * f_g_k) / gamma_M_A"
-    else:
-        if "EN" in standard:
-            equation_text = "f_g_d = (k_e * k_mod * k_sp * f_g_k) / gamma_M_A + (k_v * (f_b_k - f_g_k)) / gamma_M_V"
-        else:
-            equation_text = "f_g_d = ((k_mod * k_sp * f_g_k) / gamma_M_A + (k_v * (f_b_k - f_g_k)) / gamma_M_V) * k_e"
-    pdf.multi_cell(0, 10, equation_text)
-    pdf.ln(5)
-    
     # -------------------------------------------
     # Design Stress Results Table for Load Durations
     # -------------------------------------------
