@@ -490,33 +490,33 @@ def generate_pdf():
     pdf.ln(5)
     
     # Helper function to write a key-value pair (with wrapping if necessary)
-    def write_key_value(key, value):
-        label_width = avail_width * 0.7  # 35% for the label
-        pdf.set_font("SourceSansPro", "B", 4)
-        pdf.cell(label_width, 10, key, ln=0)
-        pdf.set_font("SourceSansPro", "", 4)
-        pdf.multi_cell(0, 10, value)
+    # def write_key_value(key, value):
+    #     label_width = avail_width * 0.35  # 35% for the label
+    #     pdf.set_font("SourceSansPro", "B", 4)
+    #     pdf.cell(label_width, 10, key, ln=0)
+    #     pdf.set_font("SourceSansPro", "", 4)
+    #     pdf.multi_cell(0, 10, value)
     
-    write_key_value("Standard Used:", standard)
-    pdf.ln(2)
+    # write_key_value("Standard Used:", standard)
+    # pdf.ln(2)
     
-    pdf.set_font("SourceSansProBlack", "", 14)
-    pdf.cell(0, 10, "Input Parameters:", ln=True)
-    pdf.ln(2)
+    # pdf.set_font("SourceSansProBlack", "", 14)
+    # pdf.cell(0, 10, "Input Parameters:", ln=True)
+    # pdf.ln(2)
     
-    write_key_value("Characteristic Bending Strength:", 
-                    f"{fbk_choice} (Value: {fbk_value} N/mm2, Category: {glass_category})")
-    write_key_value("Glass Surface Profile Factor:", f"{ksp_choice} (Value: {ksp_value})")
-    write_key_value("Surface Finish Factor:", f"{ksp_prime_choice} (Value: {ksp_prime_value})")
-    write_key_value("Strengthening Factor:", f"{kv_choice} (Value: {kv_value})")
-    # write_key_value("Edge Strength Factor:", f"{ke_choice} (Value: {ke_value})")
-    # write_key_value("Design Value for Glass:", f"{f_gk_value} N/mm2")
+    # write_key_value("Characteristic Bending Strength:", 
+    #                 f"{fbk_choice} (Value: {fbk_value} N/mm2, Category: {glass_category})")
+    # write_key_value("Glass Surface Profile Factor:", f"{ksp_choice} (Value: {ksp_value})")
+    # write_key_value("Surface Finish Factor:", f"{ksp_prime_choice} (Value: {ksp_prime_value})")
+    # write_key_value("Strengthening Factor:", f"{kv_choice} (Value: {kv_value})")
+    # # write_key_value("Edge Strength Factor:", f"{ke_choice} (Value: {ke_value})")
+    # # write_key_value("Design Value for Glass:", f"{f_gk_value} N/mm2")
     
-    if glass_category == "annealed":
-        write_key_value("Material Partial Safety Factor:", f"gamma_M_A = {gamma_MA}")
-    else:
-        write_key_value("Material Partial Safety Factor:", f"gamma_M_A = {gamma_MA}, gamma_M_V = {gamma_MV}")
-    pdf.ln(3)
+    # if glass_category == "annealed":
+    #     write_key_value("Material Partial Safety Factor:", f"gamma_M_A = {gamma_MA}")
+    # else:
+    #     write_key_value("Material Partial Safety Factor:", f"gamma_M_A = {gamma_MA}, gamma_M_V = {gamma_MV}")
+    # pdf.ln(3)
     
     # -------------------------------------------
     # Design Stress Results Table for Load Durations
