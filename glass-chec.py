@@ -491,7 +491,7 @@ def generate_pdf():
     
     # Helper function to write a key-value pair (with wrapping if necessary)
     def write_key_value(key, value):
-        label_width = avail_width * 0.35  # 35% for the label
+        label_width = avail_width * 0.7  # 35% for the label
         pdf.set_font("SourceSansPro", "B", 4)
         pdf.cell(label_width, 10, key, ln=0)
         pdf.set_font("SourceSansPro", "", 4)
