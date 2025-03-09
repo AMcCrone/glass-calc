@@ -521,44 +521,44 @@ def generate_pdf():
     # -------------------------------------------
     # Design Stress Results Table for Load Durations
     # -------------------------------------------
-    # pdf.set_font("SourceSansProBlack", "", 14)
-    # pdf.cell(0, 10, "Design Stress Results:", ln=True)
-    # pdf.ln(2)
+    pdf.set_font("SourceSansProBlack", "", 14)
+    pdf.cell(0, 10, "Design Stress Results:", ln=True)
+    pdf.ln(2)
     
-    # # Define column widths: 50% for Load Type, 20% for k_mod, 30% for f_g;d.
-    # w1 = avail_width * 0.5
-    # w2 = avail_width * 0.2
-    # w3 = avail_width * 0.3
+    # Define column widths: 50% for Load Type, 20% for k_mod, 30% for f_g;d.
+    w1 = avail_width * 0.5
+    w2 = avail_width * 0.2
+    w3 = avail_width * 0.3
     
-    # # Table Header.
-    # pdf.set_font("SourceSansPro", "B", 4)
-    # pdf.cell(w1, 10, "Load Type", border=1, align="C")
-    # pdf.cell(w2, 10, "k_mod", border=1, align="C")
-    # pdf.cell(w3, 10, "f_g;d (MPa)", border=1, align="C", ln=True)
+    # Table Header.
+    pdf.set_font("SourceSansPro", "B", 4)
+    pdf.cell(w1, 10, "Load Type", border=1, align="C")
+    pdf.cell(w2, 10, "k_mod", border=1, align="C")
+    pdf.cell(w3, 10, "f_g;d (MPa)", border=1, align="C", ln=True)
     
-    # # Set a smaller font for table rows.
-    # pdf.set_font("SourceSansPro", "", 4)
+    # Set a smaller font for table rows.
+    pdf.set_font("SourceSansPro", "", 4)
     
-    # # Loop through each load duration option.
-    # for load_type, kmod_value in kmod_options.items():
-    #     if glass_category == "annealed":
-    #         f_gd = (ke_value * kmod_value * ksp_value * ksp_prime_value * f_gk_value) / gamma_MA
-    #     else:
-    #         if standard == "EN 16612":
-    #             f_gd = ((ke_value * kmod_value * ksp_value * ksp_prime_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)
-    #         else:
-    #             f_gd = (((kmod_value * ksp_value * ksp_prime_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)) * ke_value
+    # Loop through each load duration option.
+    for load_type, kmod_value in kmod_options.items():
+        if glass_category == "annealed":
+            f_gd = (ke_value * kmod_value * ksp_value * ksp_prime_value * f_gk_value) / gamma_MA
+        else:
+            if standard == "EN 16612":
+                f_gd = ((ke_value * kmod_value * ksp_value * ksp_prime_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)
+            else:
+                f_gd = (((kmod_value * ksp_value * ksp_prime_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)) * ke_value
         
-    #     # Highlight the row if this load type is among those selected by the user.
-    #     fill = False
-    #     if load_type in selected_loads:
-    #         pdf.set_fill_color(235, 140, 113)
-    #         fill = True
+        # Highlight the row if this load type is among those selected by the user.
+        fill = False
+        if load_type in selected_loads:
+            pdf.set_fill_color(235, 140, 113)
+            fill = True
         
-    #     # Use multi_cell for each cell to wrap text if needed.
-    #     pdf.cell(w1, 10, load_type, border=1, align="C", fill=fill)
-    #     pdf.cell(w2, 10, f"{kmod_value:.2f}", border=1, align="C", fill=fill)
-    #     pdf.cell(w3, 10, f"{f_gd:.2f}", border=1, align="C", fill=fill, ln=True)
+        # Use multi_cell for each cell to wrap text if needed.
+        pdf.cell(w1, 10, load_type, border=1, align="C", fill=fill)
+        pdf.cell(w2, 10, f"{kmod_value:.2f}", border=1, align="C", fill=fill)
+        pdf.cell(w3, 10, f"{f_gd:.2f}", border=1, align="C", fill=fill, ln=True)
     
     pdf_content = pdf.output(dest="S")
     if isinstance(pdf_content, str):
