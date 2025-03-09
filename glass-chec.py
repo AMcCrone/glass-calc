@@ -470,165 +470,110 @@ st.dataframe(df_kmod_styled.hide(axis="index"))
 def generate_pdf():
     pdf = FPDF()
     pdf.add_page()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.set_left_margin(15)
+    pdf.set_right_margin(15)
     
-    # Add custom fonts
+    # Add custom fonts from your repository.
+    pdf.add_font("SourceSansProBlack", "", "fonts/SourceSansPro-Black.ttf", uni=True)
     pdf.add_font("SourceSansPro", "", "fonts/SourceSansPro-Regular.ttf", uni=True)
     pdf.add_font("SourceSansPro", "B", "fonts/SourceSansPro-Bold.ttf", uni=True)
-    pdf.add_font("SourceSansProBlack", "", "fonts/SourceSansPro-Black.ttf", uni=True)
     
-    # Title (using Source Sans Pro Black)
+    # Title: Use SourceSansProBlack
     pdf.set_font("SourceSansProBlack", "", 18)
     pdf.cell(0, 10, "Glass Stress Calculation Summary", ln=True, align="C")
     pdf.ln(5)
     
-    # Standard Used (key info in Bold)
+    # Standard Used
     pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(0, 10, "Standard Used: ", ln=False)
+    pdf.cell(40, 10, "Standard Used:", ln=0)
     pdf.set_font("SourceSansPro", "", 12)
-    pdf.cell(0, 10, f"{standard}", ln=True)
-    pdf.ln(3)
+    pdf.cell(0, 10, standard, ln=True)
+    pdf.ln(2)
     
-    # Input Parameters Header (using Black)
+    # Input Parameters Header: Use SourceSansProBlack
     pdf.set_font("SourceSansProBlack", "", 14)
     pdf.cell(0, 10, "Input Parameters:", ln=True)
     pdf.ln(2)
     
     # Characteristic Bending Strength
     pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(0, 10, "Characteristic Bending Strength: ", ln=False)
+    pdf.cell(60, 10, "Characteristic Bending Strength:", ln=0)
     pdf.set_font("SourceSansPro", "", 12)
-    pdf.cell(0, 10, f"{fbk_choice} (Value: {fbk_value} N/mm2, Category: {glass_category})", ln=True)
+    line = f"{fbk_choice} (Value: {fbk_value} N/mm2, Category: {glass_category})"
+    pdf.multi_cell(0, 10, line)
     
     # Glass Surface Profile Factor
     pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(0, 10, "Glass Surface Profile Factor: ", ln=False)
+    pdf.cell(60, 10, "Glass Surface Profile Factor:", ln=0)
     pdf.set_font("SourceSansPro", "", 12)
-    pdf.cell(0, 10, f"{ksp_choice} (Value: {ksp_value})", ln=True)
+    line = f"{ksp_choice} (Value: {ksp_value})"
+    pdf.multi_cell(0, 10, line)
     
     # Surface Finish Factor
     pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(0, 10, "Surface Finish Factor: ", ln=False)
+    pdf.cell(60, 10, "Surface Finish Factor:", ln=0)
     pdf.set_font("SourceSansPro", "", 12)
-    pdf.cell(0, 10, f"{ksp_prime_choice} (Value: {ksp_prime_value})", ln=True)
+    line = f"{ksp_prime_choice} (Value: {ksp_prime_value})"
+    pdf.multi_cell(0, 10, line)
     
     # Strengthening Factor
     pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(0, 10, "Strengthening Factor: ", ln=False)
+    pdf.cell(60, 10, "Strengthening Factor:", ln=0)
     pdf.set_font("SourceSansPro", "", 12)
-    pdf.cell(0, 10, f"{kv_choice} (Value: {kv_value})", ln=True)
+    line = f"{kv_choice} (Value: {kv_value})"
+    pdf.multi_cell(0, 10, line)
     
     # Edge Strength Factor
     pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(0, 10, "Edge Strength Factor: ", ln=False)
+    pdf.cell(60, 10, "Edge Strength Factor:", ln=0)
     pdf.set_font("SourceSansPro", "", 12)
-    pdf.cell(0, 10, f"{ke_choice} (Value: {ke_value})", ln=True)
+    line = f"{ke_choice} (Value: {ke_value})"
+    pdf.multi_cell(0, 10, line)
     
     # Design Value for Glass
     pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(0, 10, "Design Value for Glass: ", ln=False)
+    pdf.cell(60, 10, "Design Value for Glass:", ln=0)
     pdf.set_font("SourceSansPro", "", 12)
     pdf.cell(0, 10, f"{f_gk_value} N/mm2", ln=True)
+    pdf.ln(2)
     
     # Material Partial Safety Factor
     pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(0, 10, "Material Partial Safety Factor: ", ln=False)
+    pdf.cell(60, 10, "Material Partial Safety Factor:", ln=0)
     pdf.set_font("SourceSansPro", "", 12)
-    if glass_category != "annealed":
-        pdf.cell(0, 10, f"gamma_M_A = {gamma_MA}, gamma_M_v = {gamma_MV}", ln=True)
-    else:
+    if glass_category == "annealed":
         pdf.cell(0, 10, f"gamma_M_A = {gamma_MA}", ln=True)
+    else:
+        pdf.cell(0, 10, f"gamma_M_A = {gamma_MA}, gamma_M_V = {gamma_MV}", ln=True)
+    pdf.ln(3)
     
-    pdf.ln(5)
-    
-    # Calculation Details Header (using Black)
+    # Calculation Equation Header: Use SourceSansProBlack
     pdf.set_font("SourceSansProBlack", "", 14)
-    pdf.cell(0, 10, "Calculation Details:", ln=True)
+    pdf.cell(0, 10, "Calculation Equation:", ln=True)
     pdf.ln(2)
     
-    # Calculation Details Text (using Regular)
+    # Determine the relevant equation based on the selected standard and glass type.
+    if glass_category == "annealed":
+        equation_text = "f_g_d = (k_e * k_mod * k_sp * f_g_k) / gamma_M_A"
+    else:
+        if "EN" in standard:
+            equation_text = "f_g_d = (k_e * k_mod * k_sp * f_g_k) / gamma_M_A + (k_v * (f_b_k - f_g_k)) / gamma_M_V"
+        else:
+            equation_text = "f_g_d = ((k_mod * k_sp * f_g_k) / gamma_M_A + (k_v * (f_b_k - f_g_k)) / gamma_M_V) * k_e"
+    
+    # Display selected k_mod as key information.
+    pdf.set_font("SourceSansPro", "B", 12)
+    pdf.cell(60, 10, "Selected k_mod:", ln=0)
     pdf.set_font("SourceSansPro", "", 12)
-    calc_details = (
-        "For annealed glass:\n"
-        "   f_g_d = (k_e * k_mod * k_sp * f_g_k) / gamma_M_A\n\n"
-        "For prestressed glass:\n"
-        "   If standard is EN 16612:\n"
-        "       f_g_d = (k_e * k_mod * k_sp * f_g_k) / gamma_M_A + (k_v * (f_b_k - f_g_k)) / gamma_M_v\n"
-        "   If standard is IStructE:\n"
-        "       f_g_d = ((k_mod * k_sp * f_g_k) / gamma_M_A + (k_v * (f_b_k - f_g_k)) / gamma_M_v) * k_e\n\n"
-        "Notes:\n"
-        " - f_b_k: Characteristic bending strength in N/mm2\n"
-        " - k_sp: Glass surface profile factor\n"
-        " - k_sp: Surface finish factor\n"
-        " - k_v: Strengthening factor\n"
-        " - k_e: Edge strength factor\n"
-        " - k_mod: Load duration factor\n"
-        " - f_g_k: Design value for glass (45 N/mm2)\n"
-        " - gamma_M_A: Material partial safety factor for annealed glass\n"
-        " - gamma_M_v: Material partial safety factor for prestressed glass\n"
-    )
-    pdf.multi_cell(0, 10, calc_details)
-    pdf.ln(5)
-    
-    # Appendix: Parameter Tables Header (using Black)
-    pdf.set_font("SourceSansProBlack", "", 14)
-    pdf.cell(0, 10, "Appendix: Parameter Tables", ln=True)
+    pdf.cell(0, 10, f"{selected_kmod}", ln=True)
     pdf.ln(2)
     
-    # Characteristic Bending Strength Options Table
-    pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(0, 10, "Characteristic Bending Strength Options:", ln=True)
-    pdf.set_font("SourceSansPro", "", 10)
-    for key, val in fbk_options.items():
-        line = f"{key}: {val['value']} N/mm2, Category: {val['category']}"
-        pdf.cell(0, 8, line, ln=True)
-    pdf.ln(3)
+    # Equation text (wraps automatically within the margins)
+    pdf.set_font("SourceSansPro", "", 12)
+    pdf.multi_cell(0, 10, equation_text)
     
-    # Glass Surface Profile Factor Options Table
-    pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(0, 10, "Glass Surface Profile Factor Options:", ln=True)
-    pdf.set_font("SourceSansPro", "", 10)
-    for key, val in ksp_options.items():
-        line = f"{key}: {val}"
-        pdf.cell(0, 8, line, ln=True)
-    pdf.ln(3)
-    
-    # Surface Finish Factor Options Table
-    pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(0, 10, "Surface Finish Factor Options:", ln=True)
-    pdf.set_font("SourceSansPro", "", 10)
-    for key, val in ksp_prime_options.items():
-        line = f"{key}: {val}"
-        pdf.cell(0, 8, line, ln=True)
-    pdf.ln(3)
-    
-    # Strengthening Factor Options Table
-    pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(0, 10, "Strengthening Factor Options:", ln=True)
-    pdf.set_font("SourceSansPro", "", 10)
-    for key, val in kv_options.items():
-        line = f"{key}: {val}"
-        pdf.cell(0, 8, line, ln=True)
-    pdf.ln(3)
-    
-    # Edge Strength Factor Options Table
-    pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(0, 10, "Edge Strength Factor Options:", ln=True)
-    pdf.set_font("SourceSansPro", "", 10)
-    for key, val in ke_options.items():
-        line = f"{key}: {val}"
-        pdf.cell(0, 8, line, ln=True)
-    pdf.ln(3)
-    
-    # Load Duration Factor Options Table
-    pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(0, 10, "Load Duration Factor Options (k_mod):", ln=True)
-    pdf.set_font("SourceSansPro", "", 10)
-    for key, val in kmod_options.items():
-        line = f"{key}: {val}"
-        pdf.cell(0, 8, line, ln=True)
-    pdf.ln(3)
-    
-    # Finalize PDF output
+    # Finalize PDF output.
     pdf_content = pdf.output(dest="S")
     if isinstance(pdf_content, str):
         pdf_bytes = pdf_content.encode("latin1")
