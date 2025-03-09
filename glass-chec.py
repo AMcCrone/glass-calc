@@ -470,7 +470,6 @@ st.dataframe(df_kmod_styled.hide(axis="index"))
 def generate_pdf():
     pdf = FPDF()
     pdf.add_page()
-    # Set left/right margins.
     pdf.set_left_margin(15)
     pdf.set_right_margin(15)
     pdf.set_auto_page_break(auto=True, margin=15)
@@ -480,74 +479,54 @@ def generate_pdf():
     pdf.add_font("SourceSansPro", "", "fonts/SourceSansPro-Regular.ttf", uni=True)
     pdf.add_font("SourceSansPro", "B", "fonts/SourceSansPro-Bold.ttf", uni=True)
     
-    # Compute available width.
-    avail_width = pdf.w - pdf.l_margin - pdf.r_margin  # For A4 this is ~180 mm.
-    label_width = avail_width * 0.35  # 35% for labels.
-    value_width = avail_width - label_width  # The rest for values.
+    # Calculate available width.
+    avail_width = pdf.w - pdf.l_margin - pdf.r_margin
     
-    # Title (using SourceSansProBlack).
+    # ---------------------------
+    # Title and Summary Section
+    # ---------------------------
     pdf.set_font("SourceSansProBlack", "", 18)
     pdf.cell(0, 10, "Glass Stress Calculation Summary", ln=True, align="C")
     pdf.ln(5)
     
-    # Function to write a key-value pair in one line.
+    # Helper to write a key–value pair (wrapping value if needed).
     def write_key_value(key, value):
+        # Use 35% of available width for the key.
+        label_width = avail_width * 0.35
         pdf.set_font("SourceSansPro", "B", 12)
         pdf.cell(label_width, 10, key, ln=0)
         pdf.set_font("SourceSansPro", "", 12)
-        # Use multi_cell for value to allow wrapping.
-        pdf.multi_cell(value_width, 10, value)
+        pdf.multi_cell(0, 10, value)
     
-    # Standard Used.
     write_key_value("Standard Used:", standard)
     pdf.ln(2)
     
-    # Input Parameters Header (using SourceSansProBlack).
     pdf.set_font("SourceSansProBlack", "", 14)
     pdf.cell(0, 10, "Input Parameters:", ln=True)
     pdf.ln(2)
     
-    # Characteristic Bending Strength.
-    text = f"{fbk_choice} (Value: {fbk_value} N/mm2, Category: {glass_category})"
-    write_key_value("Characteristic Bending Strength:", text)
-    
-    # Glass Surface Profile Factor.
-    text = f"{ksp_choice} (Value: {ksp_value})"
-    write_key_value("Glass Surface Profile Factor:", text)
-    
-    # Surface Finish Factor.
-    text = f"{ksp_prime_choice} (Value: {ksp_prime_value})"
-    write_key_value("Surface Finish Factor:", text)
-    
-    # Strengthening Factor.
-    text = f"{kv_choice} (Value: {kv_value})"
-    write_key_value("Strengthening Factor:", text)
-    
-    # Edge Strength Factor.
-    text = f"{ke_choice} (Value: {ke_value})"
-    write_key_value("Edge Strength Factor:", text)
-    
-    # Design Value for Glass.
+    write_key_value("Characteristic Bending Strength:", 
+                    f"{fbk_choice} (Value: {fbk_value} N/mm2, Category: {glass_category})")
+    write_key_value("Glass Surface Profile Factor:", f"{ksp_choice} (Value: {ksp_value})")
+    write_key_value("Surface Finish Factor:", f"{ksp_prime_choice} (Value: {ksp_prime_value})")
+    write_key_value("Strengthening Factor:", f"{kv_choice} (Value: {kv_value})")
+    write_key_value("Edge Strength Factor:", f"{ke_choice} (Value: {ke_value})")
     write_key_value("Design Value for Glass:", f"{f_gk_value} N/mm2")
-    pdf.ln(2)
     
-    # Material Partial Safety Factor.
     if glass_category == "annealed":
         write_key_value("Material Partial Safety Factor:", f"gamma_M_A = {gamma_MA}")
     else:
         write_key_value("Material Partial Safety Factor:", f"gamma_M_A = {gamma_MA}, gamma_M_V = {gamma_MV}")
     pdf.ln(3)
     
-    # Calculation Equation Header (using SourceSansProBlack).
     pdf.set_font("SourceSansProBlack", "", 14)
     pdf.cell(0, 10, "Calculation Equation:", ln=True)
     pdf.ln(2)
     
-    # Selected k_mod.
     write_key_value("Selected k_mod:", f"{selected_kmod}")
     pdf.ln(2)
     
-    # Equation: Only include the one relevant for the selected standard and glass type.
+    # Choose the equation based on standard and glass type.
     pdf.set_font("SourceSansPro", "", 12)
     if glass_category == "annealed":
         equation_text = "f_g_d = (k_e * k_mod * k_sp * f_g_k) / gamma_M_A"
@@ -556,8 +535,49 @@ def generate_pdf():
             equation_text = "f_g_d = (k_e * k_mod * k_sp * f_g_k) / gamma_M_A + (k_v * (f_b_k - f_g_k)) / gamma_M_V"
         else:
             equation_text = "f_g_d = ((k_mod * k_sp * f_g_k) / gamma_M_A + (k_v * (f_b_k - f_g_k)) / gamma_M_V) * k_e"
-    # multi_cell with width 0 will use the remaining width, wrapping as necessary.
     pdf.multi_cell(0, 10, equation_text)
+    pdf.ln(5)
+    
+    # -------------------------------------------
+    # Design Stress Results Table for Load Durations
+    # -------------------------------------------
+    pdf.set_font("SourceSansProBlack", "", 14)
+    pdf.cell(0, 10, "Design Stress Results:", ln=True)
+    pdf.ln(2)
+    
+    # Define column widths: 50% for Load Type, 20% for k_mod, 30% for f_g;d.
+    w1 = avail_width * 0.5
+    w2 = avail_width * 0.2
+    w3 = avail_width * 0.3
+    
+    # Table Header.
+    pdf.set_font("SourceSansPro", "B", 12)
+    pdf.cell(w1, 10, "Load Type", border=1, align="C")
+    pdf.cell(w2, 10, "k_mod", border=1, align="C")
+    pdf.cell(w3, 10, "f_g;d (MPa)", border=1, align="C", ln=True)
+    
+    pdf.set_font("SourceSansPro", "", 12)
+    # Loop through each load duration option.
+    for load_type, kmod in kmod_options.items():
+        # Calculate design stress based on glass type.
+        if glass_category == "annealed":
+            f_gd = (ke_value * kmod * ksp_value * f_gk_value) / gamma_MA
+        else:
+            if "EN" in standard:
+                f_gd = ((ke_value * kmod * ksp_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)
+            else:
+                f_gd = (((kmod * ksp_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)) * ke_value
+        
+        # Highlight the row if its k_mod matches the selected value.
+        if abs(kmod - selected_kmod) < 1e-6:
+            pdf.set_fill_color(235, 140, 113)
+            fill = True
+        else:
+            fill = False
+        
+        pdf.cell(w1, 10, load_type, border=1, align="C", fill=fill)
+        pdf.cell(w2, 10, f"{kmod:.2f}", border=1, align="C", fill=fill)
+        pdf.cell(w3, 10, f"{f_gd:.2f}", border=1, align="C", fill=fill, ln=True)
     
     # Finalize PDF output.
     pdf_content = pdf.output(dest="S")
