@@ -479,7 +479,7 @@ def generate_pdf():
     pdf.add_font("SourceSansPro", "", "fonts/SourceSansPro-Regular.ttf", uni=True)
     pdf.add_font("SourceSansPro", "B", "fonts/SourceSansPro-Bold.ttf", uni=True)
     
-    # Calculate available width.
+    # Calculate available width (for A4, ~180 mm is typical).
     avail_width = pdf.w - pdf.l_margin - pdf.r_margin
     
     # ---------------------------
@@ -489,10 +489,9 @@ def generate_pdf():
     pdf.cell(0, 10, "Glass Stress Calculation Summary", ln=True, align="C")
     pdf.ln(5)
     
-    # Helper to write a key–value pair (wrapping value if needed).
+    # Helper function to write a key-value pair (with wrapping if necessary)
     def write_key_value(key, value):
-        # Use 35% of available width for the key.
-        label_width = avail_width * 0.35
+        label_width = avail_width * 0.35  # allocate 35% of available width for the label
         pdf.set_font("SourceSansPro", "B", 12)
         pdf.cell(label_width, 10, key, ln=0)
         pdf.set_font("SourceSansPro", "", 12)
@@ -523,10 +522,7 @@ def generate_pdf():
     pdf.cell(0, 10, "Calculation Equation:", ln=True)
     pdf.ln(2)
     
-    write_key_value("Selected k_mod:", f"{selected_kmod}")
-    pdf.ln(2)
-    
-    # Choose the equation based on standard and glass type.
+    # Select the relevant equation based on standard and glass type.
     pdf.set_font("SourceSansPro", "", 12)
     if glass_category == "annealed":
         equation_text = "f_g_d = (k_e * k_mod * k_sp * f_g_k) / gamma_M_A"
@@ -556,30 +552,28 @@ def generate_pdf():
     pdf.cell(w2, 10, "k_mod", border=1, align="C")
     pdf.cell(w3, 10, "f_g;d (MPa)", border=1, align="C", ln=True)
     
-    pdf.set_font("SourceSansPro", "", 12)
-    # Loop through each load duration option.
-    for load_type, kmod in kmod_options.items():
-        # Calculate design stress based on glass type.
+    pdf.set_font("SourceSansPro", "", 10)  # smaller font for table rows
+    # Loop through each load duration option in kmod_options.
+    for load_type, kmod_value in kmod_options.items():
+        # Calculate design stress f_gd based on glass type.
         if glass_category == "annealed":
-            f_gd = (ke_value * kmod * ksp_value * f_gk_value) / gamma_MA
+            f_gd = (ke_value * kmod_value * ksp_value * ksp_prime_value * f_gk_value) / gamma_MA
         else:
-            if "EN" in standard:
-                f_gd = ((ke_value * kmod * ksp_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)
+            if standard == "EN 16612":
+                f_gd = ((ke_value * kmod_value * ksp_value * ksp_prime_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)
             else:
-                f_gd = (((kmod * ksp_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)) * ke_value
+                f_gd = (((kmod_value * ksp_value * ksp_prime_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)) * ke_value
         
-        # Highlight the row if its k_mod matches the selected value.
-        if abs(kmod - selected_kmod) < 1e-6:
+        # Highlight the row if its load type is among those selected by the user.
+        fill = False
+        if load_type in selected_loads:
             pdf.set_fill_color(235, 140, 113)
             fill = True
-        else:
-            fill = False
         
         pdf.cell(w1, 10, load_type, border=1, align="C", fill=fill)
-        pdf.cell(w2, 10, f"{kmod:.2f}", border=1, align="C", fill=fill)
+        pdf.cell(w2, 10, f"{kmod_value:.2f}", border=1, align="C", fill=fill)
         pdf.cell(w3, 10, f"{f_gd:.2f}", border=1, align="C", fill=fill, ln=True)
     
-    # Finalize PDF output.
     pdf_content = pdf.output(dest="S")
     if isinstance(pdf_content, str):
         pdf_bytes = pdf_content.encode("latin1")
