@@ -488,74 +488,10 @@ def generate_pdf():
     
     # Report Summary
     pdf.cell(0, 10, txt=f"Standard Used: {standard}", ln=True)
-    pdf.ln(3)
-    pdf.cell(0, 10, txt="Input Parameters:", ln=True)
-    pdf.cell(0, 10, txt=f"Characteristic bending strength: {fbk_choice} (Value: {fbk_value} N/mm2, Category: {glass_category})", ln=True)
-    pdf.cell(0, 10, txt=f"Glass surface profile factor: {ksp_choice} (Value: {ksp_value})", ln=True)
-    pdf.cell(0, 10, txt=f"Surface finish factor: {ksp_prime_choice} (Value: {ksp_prime_value})", ln=True)
-    pdf.cell(0, 10, txt=f"Strengthening factor: {kv_choice} (Value: {kv_value})", ln=True)
-    pdf.cell(0, 10, txt=f"Edge strength factor: {ke_choice} (Value: {ke_value})", ln=True)
-    pdf.cell(0, 10, txt=f"Design value for glass: {f_gk_value} N/mm2", ln=True)
-    
-    if glass_category != "annealed":
-        pdf.cell(0, 10, txt=f"Material partial safety factors: gamma_MA = {gamma_MA}, gamma_MV = {gamma_MV}", ln=True)
-    else:
-        pdf.cell(0, 10, txt=f"Material partial safety factor: gamma_MA = {gamma_MA}", ln=True)
-    
-    pdf.ln(8)
-    
-    # Design Stress Results Table
-    pdf.cell(0, 10, txt="Design Stress Results:", ln=True)
-    pdf.set_font("Helvetica", "B", 12)
-    pdf.cell(60, 10, txt="Load Type", border=1)
-    pdf.cell(40, 10, txt="k_mod", border=1)
-    pdf.cell(40, 10, txt="f_g;d (MPa)", border=1, ln=True)
-    pdf.set_font("Helvetica", "", 12)
-    
-    for index, row in df_results.iterrows():
-        pdf.cell(60, 10, txt=str(row["Load Type"]), border=1)
-        pdf.cell(40, 10, txt=str(row["k_mod"]), border=1)
-        pdf.cell(40, 10, txt=str(row["fg;d (MPa)"]), border=1, ln=True)
-    
-    pdf.ln(8)
-    
-    # Appendix
-    pdf.cell(0, 10, txt="Appendix: Parameter Tables", ln=True)
-    pdf.ln(3)
-    
-    # Parameter tables
-    pdf.cell(0, 10, txt="Characteristic Bending Strength Options:", ln=True)
-    for key, val in fbk_options.items():
-        line = f"{key}: {val['value']} N/mm2, Category: {val['category']}"
-        pdf.cell(0, 10, txt=line, ln=True)
-    
-    pdf.ln(3)
-    pdf.cell(0, 10, txt="Glass Surface Profile Factor Options:", ln=True)
-    for key, val in ksp_options.items():
-        pdf.cell(0, 10, txt=f"{key}: {val}", ln=True)
-    
-    pdf.ln(3)
-    pdf.cell(0, 10, txt="Surface Finish Factor Options:", ln=True)
-    for key, val in ksp_prime_options.items():
-        pdf.cell(0, 10, txt=f"{key}: {val}", ln=True)
-    
-    pdf.ln(3)
-    pdf.cell(0, 10, txt="Strengthening Factor Options:", ln=True)
-    for key, val in kv_options.items():
-        pdf.cell(0, 10, txt=f"{key}: {val}", ln=True)
-    
-    pdf.ln(3)
-    pdf.cell(0, 10, txt="Edge Strength Factor Options:", ln=True)
-    for key, val in ke_options.items():
-        pdf.cell(0, 10, txt=f"{key}: {val}", ln=True)
-    
-    pdf.ln(3)
-    pdf.cell(0, 10, txt="Load Duration Factor Options (k_mod):", ln=True)
-    for key, val in kmod_options.items():
-        pdf.cell(0, 10, txt=f"{key}: {val}", ln=True)
 
     # Return as bytes
-    return pdf.output(dest="S").encode("latin-1")
+    pdf_output = pdf.output(dest="S").encode("latin1")
+    return pdf_output
 
 # Report Section
 if st.button("Save Report as PDF"):
