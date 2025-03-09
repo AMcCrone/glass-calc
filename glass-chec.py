@@ -492,9 +492,9 @@ def generate_pdf():
     # Helper function to write a key-value pair (with wrapping if necessary)
     def write_key_value(key, value):
         label_width = avail_width * 0.35  # 35% for the label
-        pdf.set_font("SourceSansPro", "B", 12)
+        pdf.set_font("SourceSansPro", "B", 8)
         pdf.cell(label_width, 10, key, ln=0)
-        pdf.set_font("SourceSansPro", "", 12)
+        pdf.set_font("SourceSansPro", "", 8)
         pdf.multi_cell(0, 10, value)
     
     write_key_value("Standard Used:", standard)
@@ -522,7 +522,7 @@ def generate_pdf():
     pdf.cell(0, 10, "Calculation Equation:", ln=True)
     pdf.ln(2)
     
-    pdf.set_font("SourceSansPro", "", 12)
+    pdf.set_font("SourceSansPro", "", 8)
     if glass_category == "annealed":
         equation_text = "f_g_d = (k_e * k_mod * k_sp * f_g_k) / gamma_M_A"
     else:
@@ -546,7 +546,7 @@ def generate_pdf():
     w3 = avail_width * 0.3
     
     # Table Header.
-    pdf.set_font("SourceSansPro", "B", 12)
+    pdf.set_font("SourceSansPro", "B", 8)
     pdf.cell(w1, 10, "Load Type", border=1, align="C")
     pdf.cell(w2, 10, "k_mod", border=1, align="C")
     pdf.cell(w3, 10, "f_g;d (MPa)", border=1, align="C", ln=True)
