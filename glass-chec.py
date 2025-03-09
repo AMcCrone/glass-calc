@@ -489,29 +489,31 @@ def generate_pdf():
     pdf.cell(0, 10, "Glass Stress Calculation Summary", ln=True, align="C")
     pdf.ln(5)
     
-    # Helper function to write a key-value pair as a single line of text
+   # Helper function to write a key-value pair as a single line.
     def write_key_value(key, value):
-        pdf.set_font("SourceSansPro", "B", 10)
-        text = f"{key} {value}"  # Combine key and value into a single string
-        pdf.multi_cell(0, 10, text)  # Use multi_cell to allow wrapping if needed
+        # Combine key and value into a single string.
+        combined_text = f"{key} {value}"
+        # Use a single font style (change if you need special formatting).
+        pdf.set_font("SourceSansPro", "", 10)
+        # multi_cell will wrap the text if it's longer than the available width.
+        pdf.multi_cell(0, 10, combined_text)
     
-    pdf.set_font("SourceSansProBlack", "", 14)
-    pdf.cell(0, 10, "Glass Stress Calculation Summary", ln=True, align="C")
-    pdf.ln(5)
-    
+    # Write the standard information.
     write_key_value("Standard Used:", standard)
     pdf.ln(2)
     
+    # Print the heading.
     pdf.set_font("SourceSansProBlack", "", 14)
     pdf.cell(0, 10, "Input Parameters:", ln=True)
     pdf.ln(2)
     
-    write_key_value("Characteristic Bending Strength:", f"{fbk_choice} (Value: {fbk_value} N/mm²)")
+    # Write the input parameters on a single line each.
+    write_key_value("Characteristic Bending Strength:", f"{fbk_choice} (Value: {fbk_value} N/mm2)")
     write_key_value("Glass Surface Profile Factor:", f"{ksp_choice} (Value: {ksp_value})")
     write_key_value("Surface Finish Factor:", f"{ksp_prime_choice} (Value: {ksp_prime_value})")
     write_key_value("Strengthening Factor:", f"{kv_choice} (Value: {kv_value})")
     write_key_value("Edge Strength Factor:", f"{ke_choice} (Value: {ke_value})")
-    write_key_value("Design Value for Glass:", f"{f_gk_value} N/mm²")
+    write_key_value("Design Value for Glass:", f"{f_gk_value} N/mm2")
     
     if glass_category == "annealed":
         write_key_value("Material Partial Safety Factor:", f"gamma_M_A = {gamma_MA}")
@@ -519,6 +521,7 @@ def generate_pdf():
         write_key_value("Material Partial Safety Factor:", f"gamma_M_A = {gamma_MA}, gamma_M_V = {gamma_MV}")
     
     pdf.ln(3)
+
     
     # -------------------------------------------
     # Design Stress Results Table for Load Durations
