@@ -470,9 +470,18 @@ st.dataframe(df_kmod_styled.hide(axis="index"))
 def generate_pdf():
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
     
-    # Create a simple summary line
+    # Add custom fonts
+    pdf.add_font("SourceSansPro", "", "fonts/SourceSansPro-Regular.ttf", uni=True)
+    pdf.add_font("SourceSansPro", "B", "fonts/SourceSansPro-Bold.ttf", uni=True)
+    
+    # Title using bold custom font
+    pdf.set_font("SourceSansPro", "B", 16)
+    pdf.cell(200, 10, "Glass Calculation Report", ln=True, align='C')
+    pdf.ln(10)
+    
+    # Summary text using regular custom font
+    pdf.set_font("SourceSansPro", "", 12)
     summary = (
         f"Calculation Summary:\n"
         f"Standard Used: {standard}\n"
@@ -480,9 +489,8 @@ def generate_pdf():
     )
     pdf.multi_cell(0, 10, summary)
     
-    # Generate PDF content as a string or bytearray
+    # Output PDF as bytes (handling both str and bytearray output types)
     pdf_content = pdf.output(dest="S")
-    # If the output is a string, encode it; if it's a bytearray, convert to bytes.
     if isinstance(pdf_content, str):
         pdf_bytes = pdf_content.encode("latin1")
     else:
