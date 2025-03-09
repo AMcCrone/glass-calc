@@ -470,90 +470,85 @@ st.dataframe(df_kmod_styled.hide(axis="index"))
 def generate_pdf():
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_auto_page_break(auto=True, margin=15)
+    # Set left/right margins.
     pdf.set_left_margin(15)
     pdf.set_right_margin(15)
+    pdf.set_auto_page_break(auto=True, margin=15)
     
-    # Add custom fonts from your repository.
+    # Add custom fonts.
     pdf.add_font("SourceSansProBlack", "", "fonts/SourceSansPro-Black.ttf", uni=True)
     pdf.add_font("SourceSansPro", "", "fonts/SourceSansPro-Regular.ttf", uni=True)
     pdf.add_font("SourceSansPro", "B", "fonts/SourceSansPro-Bold.ttf", uni=True)
     
-    # Title: Use SourceSansProBlack
+    # Compute available width.
+    avail_width = pdf.w - pdf.l_margin - pdf.r_margin  # For A4 this is ~180 mm.
+    label_width = avail_width * 0.35  # 35% for labels.
+    value_width = avail_width - label_width  # The rest for values.
+    
+    # Title (using SourceSansProBlack).
     pdf.set_font("SourceSansProBlack", "", 18)
     pdf.cell(0, 10, "Glass Stress Calculation Summary", ln=True, align="C")
     pdf.ln(5)
     
-    # Standard Used
-    pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(40, 10, "Standard Used:", ln=0)
-    pdf.set_font("SourceSansPro", "", 12)
-    pdf.cell(0, 10, standard, ln=True)
+    # Function to write a key-value pair in one line.
+    def write_key_value(key, value):
+        pdf.set_font("SourceSansPro", "B", 12)
+        pdf.cell(label_width, 10, key, ln=0)
+        pdf.set_font("SourceSansPro", "", 12)
+        # Use multi_cell for value to allow wrapping.
+        pdf.multi_cell(value_width, 10, value)
+    
+    # Standard Used.
+    write_key_value("Standard Used:", standard)
     pdf.ln(2)
     
-    # Input Parameters Header: Use SourceSansProBlack
+    # Input Parameters Header (using SourceSansProBlack).
     pdf.set_font("SourceSansProBlack", "", 14)
     pdf.cell(0, 10, "Input Parameters:", ln=True)
     pdf.ln(2)
     
-    # Characteristic Bending Strength
-    pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(60, 10, "Characteristic Bending Strength:", ln=0)
-    pdf.set_font("SourceSansPro", "", 12)
-    line = f"{fbk_choice} (Value: {fbk_value} N/mm2, Category: {glass_category})"
-    pdf.multi_cell(0, 10, line)
+    # Characteristic Bending Strength.
+    text = f"{fbk_choice} (Value: {fbk_value} N/mm2, Category: {glass_category})"
+    write_key_value("Characteristic Bending Strength:", text)
     
-    # Glass Surface Profile Factor
-    pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(60, 10, "Glass Surface Profile Factor:", ln=0)
-    pdf.set_font("SourceSansPro", "", 12)
-    line = f"{ksp_choice} (Value: {ksp_value})"
-    pdf.multi_cell(0, 10, line)
+    # Glass Surface Profile Factor.
+    text = f"{ksp_choice} (Value: {ksp_value})"
+    write_key_value("Glass Surface Profile Factor:", text)
     
-    # Surface Finish Factor
-    pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(60, 10, "Surface Finish Factor:", ln=0)
-    pdf.set_font("SourceSansPro", "", 12)
-    line = f"{ksp_prime_choice} (Value: {ksp_prime_value})"
-    pdf.multi_cell(0, 10, line)
+    # Surface Finish Factor.
+    text = f"{ksp_prime_choice} (Value: {ksp_prime_value})"
+    write_key_value("Surface Finish Factor:", text)
     
-    # Strengthening Factor
-    pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(60, 10, "Strengthening Factor:", ln=0)
-    pdf.set_font("SourceSansPro", "", 12)
-    line = f"{kv_choice} (Value: {kv_value})"
-    pdf.multi_cell(0, 10, line)
+    # Strengthening Factor.
+    text = f"{kv_choice} (Value: {kv_value})"
+    write_key_value("Strengthening Factor:", text)
     
-    # Edge Strength Factor
-    pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(60, 10, "Edge Strength Factor:", ln=0)
-    pdf.set_font("SourceSansPro", "", 12)
-    line = f"{ke_choice} (Value: {ke_value})"
-    pdf.multi_cell(0, 10, line)
+    # Edge Strength Factor.
+    text = f"{ke_choice} (Value: {ke_value})"
+    write_key_value("Edge Strength Factor:", text)
     
-    # Design Value for Glass
-    pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(60, 10, "Design Value for Glass:", ln=0)
-    pdf.set_font("SourceSansPro", "", 12)
-    pdf.cell(0, 10, f"{f_gk_value} N/mm2", ln=True)
+    # Design Value for Glass.
+    write_key_value("Design Value for Glass:", f"{f_gk_value} N/mm2")
     pdf.ln(2)
     
-    # Material Partial Safety Factor
-    pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(60, 10, "Material Partial Safety Factor:", ln=0)
-    pdf.set_font("SourceSansPro", "", 12)
+    # Material Partial Safety Factor.
     if glass_category == "annealed":
-        pdf.cell(0, 10, f"gamma_M_A = {gamma_MA}", ln=True)
+        write_key_value("Material Partial Safety Factor:", f"gamma_M_A = {gamma_MA}")
     else:
-        pdf.cell(0, 10, f"gamma_M_A = {gamma_MA}, gamma_M_V = {gamma_MV}", ln=True)
+        write_key_value("Material Partial Safety Factor:", f"gamma_M_A = {gamma_MA}, gamma_M_V = {gamma_MV}")
     pdf.ln(3)
     
-    # Calculation Equation Header: Use SourceSansProBlack
+    # Calculation Equation Header (using SourceSansProBlack).
     pdf.set_font("SourceSansProBlack", "", 14)
     pdf.cell(0, 10, "Calculation Equation:", ln=True)
     pdf.ln(2)
     
-    # Determine the relevant equation based on the selected standard and glass type.
+    # Selected k_mod.
+    write_key_value("Selected k_mod:", f"{selected_kmod}")
+    pdf.ln(2)
+    
+    # Equation: Only include the one relevant for the selected standard and glass type.
+    pdf.set_font("SourceSansPro", "", 12)
     if glass_category == "annealed":
         equation_text = "f_g_d = (k_e * k_mod * k_sp * f_g_k) / gamma_M_A"
     else:
@@ -561,16 +556,7 @@ def generate_pdf():
             equation_text = "f_g_d = (k_e * k_mod * k_sp * f_g_k) / gamma_M_A + (k_v * (f_b_k - f_g_k)) / gamma_M_V"
         else:
             equation_text = "f_g_d = ((k_mod * k_sp * f_g_k) / gamma_M_A + (k_v * (f_b_k - f_g_k)) / gamma_M_V) * k_e"
-    
-    # Display selected k_mod as key information.
-    pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(60, 10, "Selected k_mod:", ln=0)
-    pdf.set_font("SourceSansPro", "", 12)
-    pdf.cell(0, 10, f"{selected_kmod}", ln=True)
-    pdf.ln(2)
-    
-    # Equation text (wraps automatically within the margins)
-    pdf.set_font("SourceSansPro", "", 12)
+    # multi_cell with width 0 will use the remaining width, wrapping as necessary.
     pdf.multi_cell(0, 10, equation_text)
     
     # Finalize PDF output.
