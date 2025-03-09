@@ -468,32 +468,33 @@ df_kmod_styled = df_kmod.style.apply(style_load_row, axis=1)
 st.dataframe(df_kmod_styled.hide(axis="index"))
 
 def generate_pdf():
-    # Create a new PDF object in A4 format
-    pdf = FPDF(format='A4')
+    pdf = FPDF()
     pdf.add_page()
-    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.set_font("Arial", size=12)
     
-    # Use built-in Helvetica font
-    pdf.set_font("Helvetica", "", 12)
+    # Create a summary line that shows the standard and the characteristic bending strength selection.
+    summary = (
+        f"Calculation Summary:\n"
+        f"Standard Used: {standard}\n"
+        f"Characteristic Bending Strength: {fbk_choice}"
+    )
     
-    # Report Title
-    pdf.set_font("Helvetica", "B", 16)
-    pdf.cell(0, 10, txt="Glass Calculation Report", ln=True, align="C")
-    pdf.ln(5)
+    # Write the summary text in the PDF.
+    pdf.multi_cell(0, 10, summary)
     
-    # Body text
-    pdf.set_font("Helvetica", "", 12)
-    pdf.cell(0, 10, txt=f"Standard Used: {standard}", ln=True)
-    pdf.ln(3)
+    # Output PDF as a string or bytes.
+    pdf_content = pdf.output(dest="S")
     
-    # Report Summary
-    pdf.cell(0, 10, txt=f"Standard Used: {standard}", ln=True)
+    # If the returned value is a string, encode it to bytes. If it's already bytes (or a bytearray), use it directly.
+    if isinstance(pdf_content, str):
+        pdf_bytes = pdf_content.encode("latin1")
+    else:
+        pdf_bytes = pdf_content
 
-    # Return as bytes
-    pdf_output = pdf.output(dest="S").encode("latin1")
-    return pdf_output
+    return pdf_bytes
 
-# Report Section
+st.title("Glass Calculation Report Generator")
+
 if st.button("Save Report as PDF"):
     pdf_bytes = generate_pdf()
     st.download_button(
