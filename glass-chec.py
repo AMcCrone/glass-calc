@@ -616,7 +616,8 @@ if compare_interlayers and compare_times:
             xaxis_title="Interlayer Type",
             yaxis_title="Young's Modulus E(MPa)",
             barmode='group',
-            legend_title="Load Duration"
+            legend_title="Load Duration",
+            colorscale='Teals'
         )
         
         st.plotly_chart(fig, use_container_width=True)
