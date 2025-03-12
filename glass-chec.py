@@ -561,17 +561,6 @@ with col2:
         default=["3 sec", "3 min", "10 min", "1 day", "1 year"]
     )
 
-"3 sec": 3,
-    "1 min": 60,
-    "3 min": 180,
-    "10 min": 600,
-    "30 min": 1800,
-    "1 hour": 3600,
-    "1 day": 86400,
-    "1 week": 604800,
-    "1 month": 2592000,
-    "1 year": 31536000
-
 if compare_interlayers and compare_times:
     # Create a dataframe to hold comparison data
     comparison_data = []
