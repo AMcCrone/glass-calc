@@ -282,6 +282,7 @@ with dashboard_col2:
     st.subheader("Quick Interlayer Selector")
     
     # Create a discrete slider with 20-degree intervals
+    temp_list = sorted(df["Temperature (°C)"].unique())
     quick_temp = st.slider("Temperature (°C):", min(temp_list), max(temp_list), 20, step=20)
     
     # Load duration selector - simplified
@@ -433,7 +434,6 @@ df_melted["E(MPa)"] = pd.to_numeric(df_melted["E(MPa)"], errors="coerce").fillna
 df_melted["Time_s"] = df_melted["Time"].map(time_map)
 
 # 4. Create selection boxes for Temperature and Load Duration
-temp_list = sorted(df["Temperature (°C)"].unique())
 selected_temp = st.selectbox("Select Temperature (°C):", temp_list)
 selected_time = st.selectbox("Select Load Duration:", list(time_map.keys()))
 
