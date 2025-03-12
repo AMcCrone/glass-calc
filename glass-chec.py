@@ -280,27 +280,7 @@ with dashboard_col1:
 
 with dashboard_col2:
     st.subheader("Quick Interlayer Selector")
-    
-    # Create a discrete slider with 20-degree intervals
-    temp_list = sorted(df["Temperature (°C)"].unique())
-    quick_temp = st.slider("Temperature (°C):", min(temp_list), max(temp_list), 20, step=20)
-    
-    # Load duration selector - simplified
-    quick_duration_options = ["3 sec (Impact)", "10 min (Wind)", "1 day (Snow)", "1 year (Permanent)"]
-    quick_duration = st.selectbox("Load Duration:", quick_duration_options)
-    
-    # Map the simplified options to actual durations
-    duration_map = {
-        "3 sec (Impact)": "3 sec",
-        "10 min (Wind)": "10 min",
-        "1 day (Snow)": "1 day",
-        "1 year (Permanent)": "1 year"
-    }
-    mapped_duration = duration_map[quick_duration]
-    
-    # Create a comparison for all interlayers at this temperature and duration
-    quick_comparison_data = []
-    
+
     for interlayer in interlayer_options:
         try:
             df_interlayer = pd.read_excel(excel_file, sheet_name=interlayer)
@@ -324,6 +304,26 @@ with dashboard_col2:
                 })
         except Exception as e:
             st.error(f"Error loading data for {interlayer}: {e}")
+    
+    # Create a discrete slider with 20-degree intervals
+    temp_list = sorted(df["Temperature (°C)"].unique())
+    quick_temp = st.slider("Temperature (°C):", min(temp_list), max(temp_list), 20, step=20)
+    
+    # Load duration selector - simplified
+    quick_duration_options = ["3 sec (Impact)", "10 min (Wind)", "1 day (Snow)", "1 year (Permanent)"]
+    quick_duration = st.selectbox("Load Duration:", quick_duration_options)
+    
+    # Map the simplified options to actual durations
+    duration_map = {
+        "3 sec (Impact)": "3 sec",
+        "10 min (Wind)": "10 min",
+        "1 day (Snow)": "1 day",
+        "1 year (Permanent)": "1 year"
+    }
+    mapped_duration = duration_map[quick_duration]
+    
+    # Create a comparison for all interlayers at this temperature and duration
+    quick_comparison_data = []
     
     if quick_comparison_data:
         df_quick = pd.DataFrame(quick_comparison_data)
