@@ -2,12 +2,23 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objs as go
-from fpdf import FPDF
+import io
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.units import mm
+
 # -----------------------
 # Authentication Section
 # -----------------------
 # Retrieve the password from secrets
-PASSWORD = st.secrets["password"]
+if "password" in st.secrets:
+    PASSWORD = st.secrets["password"]
+else:
+    PASSWORD = "demo"  # Fallback for development
 
 # Initialize authentication state
 if "authenticated" not in st.session_state:
@@ -72,21 +83,14 @@ st.sidebar.markdown("""
 st.markdown("<a name='glass-design-strength-calculator'></a>", unsafe_allow_html=True)
 st.title("Glass Design Strength Calculator")
 
-# (No lengthy explanation text here; it is moved to Documentation)
-
-st.header("Input Parameters")
-
 # Overall standard selection
 standard = st.selectbox(
     "Select the Standard",
     ["IStructE Structural Use of Glass in Buildings", "EN 16612"],
+    help="TT suggests limiting the standard EN 16612 for calculating the lateral load resistance of linearly supported glazed elements used as infill panels in a class of consequences lower than those covered in EN 1990. For all structural glazing elements (floor plate, wall, beams, columns, or glass panel with point fixing), it is recommended to use the IStructE Book. Please choose between EN-16612 & IStructE Book and not the DIN 18008, as it's not contemplated in the UK codes of practice."
 )
 
-with st.expander("Help?"):
-    st.markdown(
-        "TT suggests limiting the standard EN 16612 for calculating the lateral load resistance of linearly supported glazed elements used as infill panels in a class of consequences lower than those covered in EN 1990. Thus, for all the structural glazing elements (such as floor plate, wall, beams, columns, or glass panel with point fixing), it is recommended the use of the IStructE Book."
-        "Please, choose between EN-16612 & IStructE Book and not the DIN 18008, as not contemplated in the UK codes of practise."
-    )
+st.header("Input Parameters")
 
 # 1. Characteristic bending strength (f_{b;k})
 fbk_options = {
@@ -101,14 +105,11 @@ fbk_options = {
     "Chemically toughened patterned (EN 12337-1, 100 N/mm²)": {"value": 100, "category": "prestressed"},
 }
 
-fbk_choice = st.selectbox("Characteristic bending strength $$f_{b;k}$$", list(fbk_options.keys()))
-
-with st.expander("Help?"):
-    st.markdown(
-        "Note 1: **Prestressed glass** is the general term used for glass which has been subjected to a strengthening treatment, by heat or chemicals (e.g. heat strengthened, heat toughened, chemically toughened glass).\n\n"
-        "Note 2: **Patterned glass** is glass that has passed through rollers to give it surface texture.\n\n"
-        "Note 3: **Enamelled glass** is the same as fritted glass. It is glass which has a ceramic frit applied to the surface, by e.g. painting or screen printing, which is subsequently fired into the surface."
-    )
+fbk_choice = st.selectbox(
+    "Characteristic bending strength $$f_{b;k}$$", 
+    list(fbk_options.keys()),
+    help="Note 1: Prestressed glass is the general term used for glass which has been subjected to a strengthening treatment, by heat or chemicals (e.g. heat strengthened, heat toughened, chemically toughened glass).\n\nNote 2: Patterned glass is glass that has passed through rollers to give it surface texture.\n\nNote 3: Enamelled glass is the same as fritted glass. It is glass which has a ceramic frit applied to the surface, by e.g. painting or screen printing, which is subsequently fired into the surface."
+)
 
 fbk_value = fbk_options[fbk_choice]["value"]
 glass_category = fbk_options[fbk_choice]["category"]
@@ -150,17 +151,12 @@ ke_options = {
     "Seamed float edges": 0.9,
     "Other edge types": 0.8,
 }
-ke_choice = st.selectbox("Edge strength factor $$k_{e}$$", list(ke_options.keys()))
+ke_choice = st.selectbox(
+    "Edge strength factor $$k_{e}$$", 
+    list(ke_options.keys()),
+    help="Note 7: According to EN 16612 - Where glass edges are not stressed in bending (e.g. a pane with all edges supported) ke = 1. If glass edges are stressed in bending (e.g. a pane with two opposite edges supported or with three edges supported), ke can be lower than 1.0.\n\nNote 8: EN 16612 only applies edge strength factor to annealed glass and not to prestressed glass. IStructE applies edge strength factor to both annealed and prestressed glass.\n\nNote 9: Seamed edges are arrissed or ground edges by machine or by hand where the abrasive action is along the length of the edge."
+)
 ke_value = ke_options[ke_choice]
-
-with st.expander("Help?"):
-    st.markdown(
-        "Note 7: According to EN 16612 - Where glass edges are not stressed in bending (e.g. a pane with all edges supported) **ke = 1**. "
-        "If glass edges are stressed in bending (e.g. a pane with two opposite edges supported or with three edges supported), **ke** can be lower than 1.0.\n\n"
-        "Note 8: EN 16612 only applies edge strength factor to annealed glass and not to prestressed glass. "
-        "IStructE applies edge strength factor to both annealed and prestressed glass.\n\n"
-        "Note 9: Seamed edges are arrissed or ground edges by machine or by hand where the abrasive action is along the length of the edge."
-    )
 
 # Fixed design value for glass (f_{g;k}) is always 45 N/mm².
 f_gk_value = 45
@@ -211,20 +207,9 @@ df_results[strength_col] = pd.to_numeric(df_results[strength_col], errors='coerc
 # Create a multiselect widget to choose load durations to highlight
 selected_loads = st.multiselect(
     "Select load durations to highlight",
-    options=list(kmod_options.keys())
+    options=list(kmod_options.keys()),
+    help="Note 4: Values in Table \"4. Factor for load duration\" in this sheet are from IStructE. Similar values are found in BS 16612. Generally, for t being the load duration in hours, kmod = 0.663t^-1/16.\n\nNote 5: The value of kmod = 0.74 is based on a cumulative equivalent duration of 10 min, considered representative of the effect of a storm which may last several hours. Higher values of kmod can be considered for wind, but need to be justified (currently there is no guide for this).\n\nNote 6: According to EN 16612 - Where loads with different durations need to be treated in combination, the proposed kmod for the load combination is the highest value, which is associated with any of the loads in the combination.\n\nHow to select the right kmod? By choosing the highest kmod value for determining the glass resistance. However, all load combinations should be considered; for example, for wind, snow and self-weight: kmod = 0.74 (or 1) for wind, snow and self-weight; kmod = 0.48 for snow and self-weight; kmod = 0.29 for self-weight."
 )
-with st.expander("Help?"):
-    st.markdown(
-        "Note 4: Values in Table \"4. Factor for load duration\" in this sheet are from IStructE. Similar values are found in BS 16612. "
-        "Generally, for t being the load duration in hours, **kmod = 0.663t^-1/16**.\n\n"
-        "Note 5: The value of **kmod = 0.74** is based on a cumulative equivalent duration of 10 min, considered representative of the effect of a storm which may last several hours. "
-        "Higher values of **kmod** can be considered for wind, but need to be justified (currently there is no guide for this).\n\n"
-        "Note 6: According to EN 16612 - Where loads with different durations need to be treated in combination, the proposed **kmod** for the load combination is the highest value, "
-        "which is associated with any of the loads in the combination.\n\n"
-        "How to select the right **kmod**? By choosing the highest **kmod** value for determining the glass resistance. "
-        "However, all load combinations should be considered; for example, for wind, snow and self-weight: "
-        "**kmod = 0.74 (or 1)** for wind, snow and self-weight; **kmod = 0.48** for snow and self-weight; **kmod = 0.29** for self-weight."
-    )
 
 # Define a styling function that applies the highlight color if the row's "Load Type" is selected.
 def style_load_row(row):
@@ -467,118 +452,228 @@ df_kmod = pd.DataFrame({
 df_kmod_styled = df_kmod.style.apply(style_load_row, axis=1)
 st.dataframe(df_kmod_styled.hide(axis="index"))
 
+# =============================================================================
+# Improved PDF Generation - using ReportLab instead of FPDF
+# =============================================================================
 def generate_pdf():
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_left_margin(10)
-    pdf.set_right_margin(10)
-    pdf.set_auto_page_break(auto=True, margin=10)
+    """Generate a PDF report with the current calculation settings and results"""
     
-    # Add custom fonts.
-    pdf.add_font("SourceSansProBlack", "", "fonts/SourceSansPro-Black.ttf", uni=True)
-    pdf.add_font("SourceSansPro", "", "fonts/SourceSansPro-Regular.ttf", uni=True)
-    pdf.add_font("SourceSansPro", "B", "fonts/SourceSansPro-Bold.ttf", uni=True)
+    # Create a buffer for the PDF content
+    buffer = io.BytesIO()
     
-    # Calculate available width (for A4, ~180 mm available).
-    avail_width = pdf.w - pdf.l_margin - pdf.r_margin
+    # Create the PDF document with A4 size
+    doc = SimpleDocTemplate(buffer, pagesize=A4, 
+                           rightMargin=15*mm, leftMargin=15*mm,
+                           topMargin=15*mm, bottomMargin=15*mm)
     
-    # ---------------------------
-    # Title and Summary Section
-    # ---------------------------
-    pdf.set_font("SourceSansProBlack", "", 18)
-    pdf.cell(0, 10, "Glass Stress Calculation Summary", ln=True, align="C")
-    pdf.ln(5)
+    # Register default fonts - no need to rely on custom fonts
+    styles = getSampleStyleSheet()
     
-   # Helper function to write a key-value pair as a single line.
-    def write_key_value(key, value):
-        # Combine key and value into a single string.
-        combined_text = f"{key} {value}"
-        # Use a single font style (change if you need special formatting).
-        pdf.set_font("SourceSansPro", "", 10)
-        # multi_cell will wrap the text if it's longer than the available width.
-        pdf.multi_cell(0, 10, combined_text)
+    # Add custom styles
+    styles.add(ParagraphStyle(name='Title', 
+                             parent=styles['Heading1'],
+                             fontSize=16,
+                             spaceAfter=12))
     
-    # Write the standard information.
-    write_key_value("Standard Used:", standard)
-    pdf.ln(2)
+    styles.add(ParagraphStyle(name='Subtitle', 
+                             parent=styles['Heading2'],
+                             fontSize=14,
+                             spaceAfter=8))
     
-    # Print the heading.
-    pdf.set_font("SourceSansProBlack", "", 14)
-    pdf.cell(0, 10, "Input Parameters:", ln=True)
-    pdf.ln(2)
+    styles.add(ParagraphStyle(name='Normal-Bold',
+                             parent=styles['Normal'],
+                             fontName='Helvetica-Bold'))
     
-    # Write the input parameters on a single line each.
-    write_key_value("Characteristic Bending Strength:", f"{fbk_choice} (Value: {fbk_value} N/mm2)")
-    write_key_value("Glass Surface Profile Factor:", f"{ksp_choice} (Value: {ksp_value})")
-    write_key_value("Surface Finish Factor:", f"{ksp_prime_choice} (Value: {ksp_prime_value})")
-    write_key_value("Strengthening Factor:", f"{kv_choice} (Value: {kv_value})")
-    write_key_value("Edge Strength Factor:", f"{ke_choice} (Value: {ke_value})")
-    write_key_value("Design Value for Glass:", f"{f_gk_value} N/mm2")
+    # Create content elements
+    elements = []
     
+    # Title
+    elements.append(Paragraph("Glass Design Strength Calculation Report", styles['Title']))
+    elements.append(Spacer(1, 10))
+    
+    # Standard Used
+    elements.append(Paragraph("Standard Used", styles['Subtitle']))
+    elements.append(Paragraph(standard, styles['Normal']))
+    elements.append(Spacer(1, 10))
+    
+    # Input Parameters Section
+    elements.append(Paragraph("Input Parameters", styles['Subtitle']))
+    
+    # Create a table for the input parameters
+    input_data = [
+        ["Parameter", "Selected Option", "Value"],
+        ["Characteristic Bending Strength", fbk_choice, f"{fbk_value} N/mm²"],
+        ["Glass Surface Profile Factor", ksp_choice, f"{ksp_value}"],
+        ["Surface Finish Factor", ksp_prime_choice, f"{ksp_prime_value}"],
+        ["Strengthening Factor", kv_choice, f"{kv_value}"],
+        ["Edge Strength Factor", ke_choice, f"{ke_value}"],
+        ["Design Value for Glass", "", f"{f_gk_value} N/mm²"]
+    ]
+    
+    # Add safety factors
     if glass_category == "annealed":
-        write_key_value("Material Partial Safety Factor:", f"gamma_M_A = {gamma_MA}")
+        input_data.append(["Material Partial Safety Factor", f"γM,A = {gamma_MA}", ""])
     else:
-        write_key_value("Material Partial Safety Factor:", f"gamma_M_A = {gamma_MA}, gamma_M_V = {gamma_MV}")
+        input_data.append(["Material Partial Safety Factors", f"γM,A = {gamma_MA}, γM,V = {gamma_MV}", ""])
     
-    pdf.ln(3)
-
+    # Create the table
+    input_table = Table(input_data, colWidths=[110, 250, 70])
+    input_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (2, 0), colors.lightgrey),
+        ('TEXTCOLOR', (0, 0), (2, 0), colors.black),
+        ('ALIGN', (0, 0), (2, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (2, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (2, 0), 6),
+        ('BACKGROUND', (0, 1), (2, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ALIGN', (2, 1), (2, -1), 'CENTER'),
+    ]))
+    elements.append(input_table)
+    elements.append(Spacer(1, 15))
     
-    # -------------------------------------------
-    # Design Stress Results Table for Load Durations
-    # -------------------------------------------
-    pdf.set_font("SourceSansProBlack", "", 14)
-    pdf.cell(0, 10, "Design Stress Results:", ln=True)
-    pdf.ln(2)
+    # Results Section
+    elements.append(Paragraph("Design Strength Results", styles['Subtitle']))
     
-    # Define column widths: 50% for Load Type, 20% for k_mod, 30% for f_g;d.
-    w1 = avail_width * 0.6
-    w2 = avail_width * 0.2
-    w3 = avail_width * 0.2
+    # Create table data from calculation results
+    results_data = [["Load Type", "k_mod", "fg;d (MPa)"]]
     
-    # Table Header.
-    pdf.set_font("SourceSansPro", "B", 12)
-    pdf.cell(w1, 10, "Load Type", border=1, align="C")
-    pdf.cell(w2, 10, "k_mod", border=1, align="C")
-    pdf.cell(w3, 10, "f_g;d (MPa)", border=1, align="C", ln=True)
-    
-    # Set a smaller font for table rows.
-    pdf.set_font("SourceSansPro", "", 10)
-    
-    # Loop through each load duration option.
+    # Add each result row
     for load_type, kmod_value in kmod_options.items():
         if glass_category == "annealed":
             f_gd = (ke_value * kmod_value * ksp_value * ksp_prime_value * f_gk_value) / gamma_MA
         else:
             if standard == "EN 16612":
-                f_gd = ((ke_value * kmod_value * ksp_value * ksp_prime_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)
-            else:
-                f_gd = (((kmod_value * ksp_value * ksp_prime_value * f_gk_value) / gamma_MA) + ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)) * ke_value
+                f_gd = ((ke_value * kmod_value * ksp_value * ksp_prime_value * f_gk_value) / gamma_MA) + \
+                      ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)
+            else:  # IStructE
+                f_gd = (((kmod_value * ksp_value * ksp_prime_value * f_gk_value) / gamma_MA) + \
+                       ((kv_value * (fbk_value - f_gk_value)) / gamma_MV)) * ke_value
         
-        # Highlight the row if this load type is among those selected by the user.
-        fill = False
-        if load_type in selected_loads:
-            pdf.set_fill_color(235, 140, 113)
-            fill = True
-        
-        # Use multi_cell for each cell to wrap text if needed.
-        pdf.cell(w1, 10, load_type, border=1, align="C", fill=fill)
-        pdf.cell(w2, 10, f"{kmod_value:.2f}", border=1, align="C", fill=fill)
-        pdf.cell(w3, 10, f"{f_gd:.2f}", border=1, align="C", fill=fill, ln=True)
+        row = [load_type, f"{kmod_value:.2f}", f"{f_gd:.2f}"]
+        results_data.append(row)
     
-    pdf_content = pdf.output(dest="S")
-    if isinstance(pdf_content, str):
-        pdf_bytes = pdf_content.encode("latin1")
+    # Create the table with appropriate column widths
+    results_table = Table(results_data, colWidths=[250, 70, 110])
+    
+    # Base table style
+    table_style = [
+        ('BACKGROUND', (0, 0), (2, 0), colors.lightgrey),
+        ('TEXTCOLOR', (0, 0), (2, 0), colors.black),
+        ('ALIGN', (0, 0), (2, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (2, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (2, 0), 6),
+        ('BACKGROUND', (0, 1), (2, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ALIGN', (1, 1), (2, -1), 'CENTER'),
+    ]
+    
+    # Highlight selected load durations
+    for i, row in enumerate(results_data[1:], 1):  # Skip header row
+        if row[0] in selected_loads:
+            table_style.append(('BACKGROUND', (0, i), (2, i), colors.Color(0.925, 0.549, 0.443)))  # #EB8C71
+    
+    # Apply the style to the table
+    results_table.setStyle(TableStyle(table_style))
+    elements.append(results_table)
+    elements.append(Spacer(1, 15))
+    
+    # Add formula explanation
+    elements.append(Paragraph("Calculation Formula Used:", styles['Subtitle']))
+    if glass_category == "annealed":
+        formula_text = """
+        For annealed glass:
+        fₙₓₚ = (kₑ × k_mod × kₛₚ × k'ₛₚ × f_g,k) / γ_M,A
+        """
     else:
-        pdf_bytes = bytes(pdf_content)
-    return pdf_bytes
-
-st.title("Glass Calculation Report Generator")
-
-if st.button("Save Report as PDF"):
-    pdf_bytes = generate_pdf()
+        if standard == "EN 16612":
+            formula_text = """
+            For pre-stressed glass (EN 16612):
+            fₙₓₚ = (kₑ × k_mod × kₛₚ × k'ₛₚ × f_g,k) / γ_M,A + (kᵥ × (f_b,k - f_g,k)) / γ_M,v
+            """
+        else:  # IStructE
+            formula_text = """
+            For pre-stressed glass (IStructE):
+            fₙₓₚ = ((k_mod × kₛₚ × k'ₛₚ × f_g,k) / γ_M,A + (kᵥ × (f_b,k - f_g,k)) / γ_M,v) × kₑ
+            """
+    
+    elements.append(Paragraph(formula_text, styles['Normal']))
+    elements.append(Spacer(1, 10))
+    
+    # Add parameter definitions
+    elements.append(Paragraph("Parameter Definitions:", styles['Normal-Bold']))
+    param_definitions = """
+    • f_b,k: Characteristic bending strength (N/mm²)
+    • kₛₚ: Glass surface profile factor
+    • k'ₛₚ: Surface finish factor
+    • kᵥ: Strengthening factor
+    • kₑ: Edge strength factor
+    • k_mod: Load duration factor
+    • f_g,k: Design value for glass (fixed at 45 N/mm²)
+    • γ_M,A: Material partial safety factor for annealed glass
+    • γ_M,v: Material partial safety factor for non-annealed glass
+    """
+    elements.append(Paragraph(param_definitions, styles['Normal']))
+    
+    # Add footer with date
+    elements.append(Spacer(1, 20))
+    from datetime import datetime
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    elements.append(Paragraph(f"Report generated: {current_time}", styles['Normal']))
+    
+    # Build the PDF
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer
+    
+    # Add PDF download button
     st.download_button(
-        label="Download Glass_Calculation_Report.pdf",
-        data=pdf_bytes,
-        file_name="Glass_Calculation_Report.pdf",
+        label="Download PDF Report",
+        data=generate_pdf(),
+        file_name="Glass_Design_Strength_Report.pdf",
         mime="application/pdf"
     )
+    
+    # Add notes for the interlayer section
+    st.markdown("<a name='interlayer-notes'></a>", unsafe_allow_html=True)
+    st.title("Interlayer Notes")
+    st.markdown("""
+    ### About the Interlayer Relaxation Modulus Data
+    
+    The Young's modulus of the interlayer is a key parameter for analyzing laminated glass. Unlike glass, the interlayer is viscoelastic, which means its stiffness (Young's modulus) depends on:
+    
+    1. **Duration of loading** - Longer loads result in lower stiffness
+    2. **Temperature** - Higher temperatures result in lower stiffness
+    
+    This 3D plot visualizes how the Young's modulus E(t) varies with both temperature and load duration for different interlayer materials commonly used in structural glass applications.
+    
+    #### Common Interlayer Materials:
+    
+    - **SentryGlas (SG)** - Ionoplast interlayer with higher stiffness and post-breakage strength
+    - **SentryGlas Xtra** - Enhanced version of SentryGlas
+    - **Trosifol Clear / Ultra Clear** - PVB interlayer with high clarity
+    - **Trosifol Extra Stiff** - Stiff PVB variant for structural applications
+    - **Trosifol SC Monolayer** - Structural PVB variant
+    
+    #### Data Sources:
+    - Manufacturer technical datasheets
+    - Published research papers
+    - Industry standards
+    
+    #### Engineering Applications:
+    This data is useful for:
+    - Design of structural glass elements
+    - Predicting deflection under different loading scenarios
+    - Analyzing post-breakage performance
+    - Temperature-dependent behavior assessment
+    
+    #### Usage Notes:
+    - For structural calculations, engineers should use values appropriate for the expected temperature and load duration
+    - For critical applications, testing may be required to validate performance
+    - Use conservative values when multiple load conditions apply
+    """)
+    
+    # Footer section with version information
+    st.markdown("---")
+    st.markdown("*Glass Design Calculator v1.0.0 | © 2025*")
