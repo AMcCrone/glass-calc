@@ -452,8 +452,16 @@ df_kmod = pd.DataFrame({
 df_kmod_styled = df_kmod.style.apply(style_load_row, axis=1)
 st.dataframe(df_kmod_styled.hide(axis="index"))
 
+import io
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import mm
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
+from datetime import datetime
+
 # =============================================================================
-# Improved PDF Generation - using ReportLab instead of FPDF
+# Improved PDF Generation - using ReportLab
 # =============================================================================
 def generate_pdf():
     """Generate a PDF report with the current calculation settings and results"""
@@ -616,24 +624,76 @@ def generate_pdf():
     """
     elements.append(Paragraph(param_definitions, styles['Normal']))
     
-    # Add footer with date
+    # Add interlayer information if relevant
+    if include_interlayer_info:
+        elements.append(Spacer(1, 15))
+        elements.append(Paragraph("Interlayer Information", styles['Subtitle']))
+        
+        interlayer_text = f"""
+        Selected Interlayer: {interlayer_type}
+        Temperature: {temperature} °C
+        Load Duration: {load_duration}
+        Calculated Young's Modulus: {calculated_modulus} MPa
+        """
+        elements.append(Paragraph(interlayer_text, styles['Normal']))
+    
+    # Add project information if available
+    if project_info:
+        elements.append(Spacer(1, 15))
+        elements.append(Paragraph("Project Information", styles['Subtitle']))
+        elements.append(Paragraph(f"Project Name: {project_name}", styles['Normal']))
+        elements.append(Paragraph(f"Project Number: {project_number}", styles['Normal']))
+        elements.append(Paragraph(f"Engineer: {engineer_name}", styles['Normal']))
+        if project_notes:
+            elements.append(Paragraph("Notes:", styles['Normal-Bold']))
+            elements.append(Paragraph(project_notes, styles['Normal']))
+    
+    # Add footer with date and version info
     elements.append(Spacer(1, 20))
-    from datetime import datetime
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     elements.append(Paragraph(f"Report generated: {current_time}", styles['Normal']))
+    elements.append(Paragraph("Glass Design Calculator v1.0.0 | © 2025", styles['Normal']))
     
     # Build the PDF
     doc.build(elements)
     buffer.seek(0)
     return buffer
-    
-# Add PDF download button
-st.download_button(
-    label="Download PDF Report",
-    data=generate_pdf(),
-    file_name="Glass_Design_Strength_Report.pdf",
-    mime="application/pdf"
-)
+
+
+# In your Streamlit UI section:
+# ============================
+
+# Project Information Input
+st.header("Project Information")
+col1, col2 = st.columns(2)
+with col1:
+    project_info = st.checkbox("Include project information", value=False)
+    project_name = st.text_input("Project Name", "", disabled=not project_info)
+    project_number = st.text_input("Project Number", "", disabled=not project_info)
+with col2:
+    engineer_name = st.text_input("Engineer", "", disabled=not project_info)
+    project_notes = st.text_area("Project Notes", "", disabled=not project_info)
+
+# Interlayer Information Option
+include_interlayer_info = st.checkbox("Include interlayer information in report", value=False)
+if include_interlayer_info:
+    # These variables should be defined elsewhere in your code
+    st.info(f"The report will include interlayer data for {interlayer_type} at {temperature}°C with {load_duration} load duration.")
+
+# Generate PDF button
+if st.button("Generate PDF Report"):
+    with st.spinner("Generating PDF report..."):
+        pdf_buffer = generate_pdf()
+        
+        st.download_button(
+            label="Download PDF Report",
+            data=pdf_buffer,
+            file_name="Glass_Design_Strength_Report.pdf",
+            mime="application/pdf",
+            help="Click to download the PDF report with all calculation details"
+        )
+        
+        st.success("PDF report generated successfully!")
 
 # Add notes for the interlayer section
 st.markdown("<a name='interlayer-notes'></a>", unsafe_allow_html=True)
