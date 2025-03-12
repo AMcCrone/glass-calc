@@ -627,56 +627,56 @@ def generate_pdf():
     buffer.seek(0)
     return buffer
     
-    # Add PDF download button
-    st.download_button(
-        label="Download PDF Report",
-        data=generate_pdf(),
-        file_name="Glass_Design_Strength_Report.pdf",
-        mime="application/pdf"
-    )
-    
-    # Add notes for the interlayer section
-    st.markdown("<a name='interlayer-notes'></a>", unsafe_allow_html=True)
-    st.title("Interlayer Notes")
-    st.markdown("""
-    ### About the Interlayer Relaxation Modulus Data
-    
-    The Young's modulus of the interlayer is a key parameter for analyzing laminated glass. Unlike glass, the interlayer is viscoelastic, which means its stiffness (Young's modulus) depends on:
-    
-    1. **Duration of loading** - Longer loads result in lower stiffness
-    2. **Temperature** - Higher temperatures result in lower stiffness
-    
-    This 3D plot visualizes how the Young's modulus E(t) varies with both temperature and load duration for different interlayer materials commonly used in structural glass applications.
-    
-    #### Common Interlayer Materials:
-    
-    - **SentryGlas (SG)** - Ionoplast interlayer with higher stiffness and post-breakage strength
-    - **SentryGlas Xtra** - Enhanced version of SentryGlas
-    - **Trosifol Clear / Ultra Clear** - PVB interlayer with high clarity
-    - **Trosifol Extra Stiff** - Stiff PVB variant for structural applications
-    - **Trosifol SC Monolayer** - Structural PVB variant
-    
-    #### Data Sources:
-    - Manufacturer technical datasheets
-    - Published research papers
-    - Industry standards
-    
-    #### Engineering Applications:
-    This data is useful for:
-    - Design of structural glass elements
-    - Predicting deflection under different loading scenarios
-    - Analyzing post-breakage performance
-    - Temperature-dependent behavior assessment
-    
-    #### Usage Notes:
-    - For structural calculations, engineers should use values appropriate for the expected temperature and load duration
-    - For critical applications, testing may be required to validate performance
-    - Use conservative values when multiple load conditions apply
-    """)
-    
-    # Footer section with version information
-    st.markdown("---")
-    st.markdown("*Glass Design Calculator v1.0.0 | © 2025*")
+# Add PDF download button
+st.download_button(
+    label="Download PDF Report",
+    data=generate_pdf(),
+    file_name="Glass_Design_Strength_Report.pdf",
+    mime="application/pdf"
+)
+
+# Add notes for the interlayer section
+st.markdown("<a name='interlayer-notes'></a>", unsafe_allow_html=True)
+st.title("Interlayer Notes")
+st.markdown("""
+### About the Interlayer Relaxation Modulus Data
+
+The Young's modulus of the interlayer is a key parameter for analyzing laminated glass. Unlike glass, the interlayer is viscoelastic, which means its stiffness (Young's modulus) depends on:
+
+1. **Duration of loading** - Longer loads result in lower stiffness
+2. **Temperature** - Higher temperatures result in lower stiffness
+
+This 3D plot visualizes how the Young's modulus E(t) varies with both temperature and load duration for different interlayer materials commonly used in structural glass applications.
+
+#### Common Interlayer Materials:
+
+- **SentryGlas (SG)** - Ionoplast interlayer with higher stiffness and post-breakage strength
+- **SentryGlas Xtra** - Enhanced version of SentryGlas
+- **Trosifol Clear / Ultra Clear** - PVB interlayer with high clarity
+- **Trosifol Extra Stiff** - Stiff PVB variant for structural applications
+- **Trosifol SC Monolayer** - Structural PVB variant
+
+#### Data Sources:
+- Manufacturer technical datasheets
+- Published research papers
+- Industry standards
+
+#### Engineering Applications:
+This data is useful for:
+- Design of structural glass elements
+- Predicting deflection under different loading scenarios
+- Analyzing post-breakage performance
+- Temperature-dependent behavior assessment
+
+#### Usage Notes:
+- For structural calculations, engineers should use values appropriate for the expected temperature and load duration
+- For critical applications, testing may be required to validate performance
+- Use conservative values when multiple load conditions apply
+""")
+
+# Footer section with version information
+st.markdown("---")
+st.markdown("*Glass Design Calculator v1.0.0 | © 2025*")
 
 # =============================================================================
 # Interlayer Comparison Section
