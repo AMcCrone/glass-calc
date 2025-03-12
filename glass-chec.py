@@ -432,7 +432,7 @@ st.markdown("---")
 # Interlayer Relaxation Modulus 3D Plot Section
 # =============================================================================
 st.markdown("", unsafe_allow_html=True)
-st.title("Interlayer Relaxation Modulus 3D Plot")
+st.title("Interlayer Modulus, E(t), 3D Plot")
 
 # Create three columns for the dropdowns
 col1, col2, col3 = st.columns(3)
