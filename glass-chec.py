@@ -435,11 +435,16 @@ h1, h2, h3 {
 # =============================================================================
 # Interlayer Relaxation Modulus 3D Plot Section
 # =============================================================================
-st.markdown("<a name='interlayer-relaxation-modulus-3d-plot'></a>", unsafe_allow_html=True)
+st.markdown("", unsafe_allow_html=True)
 st.title("Interlayer Relaxation Modulus 3D Plot")
 
-# We already defined interlayer_options above
-selected_interlayer = st.selectbox("Select Interlayer:", interlayer_options)
+# Create three columns for the dropdowns
+col1, col2, col3 = st.columns(3)
+
+# Place each dropdown in its own column
+with col1:
+    # We already defined interlayer_options above
+    selected_interlayer = st.selectbox("Select Interlayer:", interlayer_options)
 
 # Excel file is already loaded above
 try:
@@ -458,14 +463,18 @@ df_melted = df.melt(
     var_name="Time",
     value_name="E(MPa)"
 )
+
 # Replace non-numeric values (e.g. "No Data") with 0.05 N/mm²
 df_melted["E(MPa)"] = pd.to_numeric(df_melted["E(MPa)"], errors="coerce").fillna(0.05)
+
 # Map the load duration strings to numeric seconds for the log-scale x-axis
 df_melted["Time_s"] = df_melted["Time"].map(time_map)
 
-# 4. Create selection boxes for Temperature and Load Duration
-selected_temp = st.selectbox("Select Temperature (°C):", temp_list)
-selected_time = st.selectbox("Select Load Duration:", list(time_map.keys()))
+# 4. Place Temperature and Load Duration dropdowns in their respective columns
+with col2:
+    selected_temp = st.selectbox("Select Temperature (°C):", temp_list)
+with col3:
+    selected_time = st.selectbox("Select Load Duration:", list(time_map.keys()))
 
 # Find the corresponding data point
 selected_point = df_melted[
