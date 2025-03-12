@@ -474,20 +474,17 @@ def generate_pdf():
                            rightMargin=15*mm, leftMargin=15*mm,
                            topMargin=15*mm, bottomMargin=15*mm)
     
-    # Register default fonts - no need to rely on custom fonts
+    # Get default styles
     styles = getSampleStyleSheet()
     
-    # Add custom styles
-    styles.add(ParagraphStyle(name='Title', 
-                             parent=styles['Heading1'],
-                             fontSize=16,
-                             spaceAfter=12))
+    # Modify existing styles instead of adding new ones with the same name
+    styles['Title'].fontSize = 16
+    styles['Title'].spaceAfter = 12
     
-    styles.add(ParagraphStyle(name='Subtitle', 
-                             parent=styles['Heading2'],
-                             fontSize=14,
-                             spaceAfter=8))
+    styles['Heading2'].fontSize = 14
+    styles['Heading2'].spaceAfter = 8
     
+    # Add a new style with a unique name
     styles.add(ParagraphStyle(name='Normal-Bold',
                              parent=styles['Normal'],
                              fontName='Helvetica-Bold'))
