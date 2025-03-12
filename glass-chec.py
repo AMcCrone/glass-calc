@@ -72,7 +72,7 @@ ticktext = [label for label, seconds in time_list]
 # =============================================================================
 st.markdown("<a name='glass-design-strength-calculator'></a>", unsafe_allow_html=True)
 st.title("Glass Design Strength Calculator")
-
+st.markdown("Have a smashing time...")
 st.subheader("Standard")
 
 # Overall standard selection
