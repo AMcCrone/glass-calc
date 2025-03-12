@@ -67,21 +67,13 @@ time_map = {label: seconds for label, seconds in time_list}
 tickvals = [seconds for label, seconds in time_list]
 ticktext = [label for label, seconds in time_list]
 
-# -----------------------
-# Sidebar Navigation Menu (Bookmarks)
-# -----------------------
-st.sidebar.markdown("""
-## Navigation
-- [Glass Design Strength Calculator](#glass-design-strength-calculator)
-- [Interlayer Relaxation Modulus 3D Plot](#interlayer-relaxation-modulus-3d-plot)
-- [Documentation](#documentation)
-""", unsafe_allow_html=True)
-
 # =============================================================================
 # Glass Design Strength Calculator Section
 # =============================================================================
 st.markdown("<a name='glass-design-strength-calculator'></a>", unsafe_allow_html=True)
 st.title("Glass Design Strength Calculator")
+
+st.subheader("Standard")
 
 # Overall standard selection
 standard = st.selectbox(
@@ -90,7 +82,7 @@ standard = st.selectbox(
     help="TT suggests limiting the standard EN 16612 for calculating the lateral load resistance of linearly supported glazed elements used as infill panels in a class of consequences lower than those covered in EN 1990. For all structural glazing elements (floor plate, wall, beams, columns, or glass panel with point fixing), it is recommended to use the IStructE Book. Please choose between EN-16612 & IStructE Book and not the DIN 18008, as it's not contemplated in the UK codes of practice."
 )
 
-st.header("Input Parameters")
+st.subheader("Input Parameters")
 
 # 1. Characteristic bending strength (f_{b;k})
 fbk_options = {
@@ -223,6 +215,8 @@ df_styled = df_results.style.apply(style_load_row, axis=1)
 st.subheader("Design Strength Results")
 # Display the DataFrame without the index column
 st.dataframe(df_styled.hide(axis="index"))
+
+st.markdown("---")
 
 # =============================================================================
 # Dashboard Section - Summary View
@@ -430,6 +424,8 @@ h1, h2, h3 {
 }
 </style>
 """, unsafe_allow_html=True)
+
+st.markdown("---")
 
 
 # =============================================================================
@@ -644,6 +640,8 @@ if compare_interlayers and compare_times:
         st.dataframe(df_pivot)
     else:
         st.warning("No comparison data available for the selected parameters.")
+
+st.markdown("---")
 
 # =============================================================================
 # Documentation Section
