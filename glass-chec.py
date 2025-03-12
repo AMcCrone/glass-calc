@@ -233,6 +233,39 @@ st.title("Glass Design Dashboard")
 # Create dashboard layout
 dashboard_col1, dashboard_col2 = st.columns(2)
 
+# Define interlayer options first so they're available throughout the code
+interlayer_options = [
+    "SentryGlas", 
+    "SentryGlas Xtra", 
+    "Trosifol Clear - Ultra Clear", 
+    "Trosifol Extra Stiff", 
+    "Trosifol SC Monolayer"
+]
+
+# Load the Excel file once (each sheet is one interlayer)
+excel_file = "Interlayer_E(t)_Database.xlsx"  # Ensure this file is in your repository
+try:
+    # Load the first interlayer to get temperature values
+    df = pd.read_excel(excel_file, sheet_name=interlayer_options[0])
+    temp_list = sorted(df["Temperature (°C)"].unique())
+except Exception as e:
+    st.error(f"Error loading Excel file: {e}")
+    st.stop()
+
+# Define time map for duration mappings
+time_map = {
+    "3 sec": 3,
+    "1 min": 60,
+    "3 min": 180,
+    "10 min": 600,
+    "30 min": 1800,
+    "1 hour": 3600,
+    "1 day": 86400,
+    "1 week": 604800,
+    "1 month": 2592000,
+    "1 year": 31536000
+}
+
 with dashboard_col1:
     st.subheader("Current Design Parameters")
     
@@ -280,7 +313,28 @@ with dashboard_col1:
 
 with dashboard_col2:
     st.subheader("Quick Interlayer Selector")
-
+    
+    # Create a discrete slider with 20-degree intervals
+    min_temp, max_temp = min(temp_list), max(temp_list)
+    temp_values = sorted(set([min_temp, max_temp] + list(range(min_temp, max_temp + 1, 20))))
+    quick_temp = st.select_slider("Temperature (°C):", options=temp_values, value=20 if 20 in temp_values else temp_values[0])
+    
+    # Load duration selector - simplified
+    quick_duration_options = ["3 sec (Impact)", "10 min (Wind)", "1 day (Snow)", "1 year (Permanent)"]
+    quick_duration = st.selectbox("Load Duration:", quick_duration_options)
+    
+    # Map the simplified options to actual durations
+    duration_map = {
+        "3 sec (Impact)": "3 sec",
+        "10 min (Wind)": "10 min",
+        "1 day (Snow)": "1 day",
+        "1 year (Permanent)": "1 year"
+    }
+    mapped_duration = duration_map[quick_duration]
+    
+    # Create a comparison for all interlayers at this temperature and duration
+    quick_comparison_data = []
+    
     for interlayer in interlayer_options:
         try:
             df_interlayer = pd.read_excel(excel_file, sheet_name=interlayer)
@@ -304,26 +358,6 @@ with dashboard_col2:
                 })
         except Exception as e:
             st.error(f"Error loading data for {interlayer}: {e}")
-    
-    # Create a discrete slider with 20-degree intervals
-    temp_list = sorted(df["Temperature (°C)"].unique())
-    quick_temp = st.slider("Temperature (°C):", min(temp_list), max(temp_list), 20, step=20)
-    
-    # Load duration selector - simplified
-    quick_duration_options = ["3 sec (Impact)", "10 min (Wind)", "1 day (Snow)", "1 year (Permanent)"]
-    quick_duration = st.selectbox("Load Duration:", quick_duration_options)
-    
-    # Map the simplified options to actual durations
-    duration_map = {
-        "3 sec (Impact)": "3 sec",
-        "10 min (Wind)": "10 min",
-        "1 day (Snow)": "1 day",
-        "1 year (Permanent)": "1 year"
-    }
-    mapped_duration = duration_map[quick_duration]
-    
-    # Create a comparison for all interlayers at this temperature and duration
-    quick_comparison_data = []
     
     if quick_comparison_data:
         df_quick = pd.DataFrame(quick_comparison_data)
@@ -404,23 +438,19 @@ h1, h2, h3 {
 st.markdown("<a name='interlayer-relaxation-modulus-3d-plot'></a>", unsafe_allow_html=True)
 st.title("Interlayer Relaxation Modulus 3D Plot")
 
-# 1. Create dropdown for interlayer selection
-interlayer_options = [
-    "SentryGlas", 
-    "SentryGlas Xtra", 
-    "Trosifol Clear - Ultra Clear", 
-    "Trosifol Extra Stiff", 
-    "Trosifol SC Monolayer"
-]
+# We already defined interlayer_options above
 selected_interlayer = st.selectbox("Select Interlayer:", interlayer_options)
 
-# 2. Load the Excel file (each sheet is one interlayer)
-excel_file = "Interlayer_E(t)_Database.xlsx"  # Ensure this file is in your repository
+# Excel file is already loaded above
 try:
     df = pd.read_excel(excel_file, sheet_name=selected_interlayer)
 except Exception as e:
-    st.error(f"Error loading Excel file: {e}")
+    st.error(f"Error loading Excel file for {selected_interlayer}: {e}")
     st.stop()
+
+# Define tickvals and ticktext for the plot
+tickvals = [time_map[key] for key in time_map.keys()]
+ticktext = list(time_map.keys())
 
 # 3. Convert the wide table into long format
 df_melted = df.melt(
