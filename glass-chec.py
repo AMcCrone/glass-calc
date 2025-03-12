@@ -289,14 +289,14 @@ with dashboard_col1:
             title={"text": "Min. Design Strength (MPa)"},
             gauge={
                 "axis": {"range": [0, 150]},
-                "bar": {"color": "#EB8C71"},
+                "bar": {"color": "#D3451D"},
                 "steps": [
-                    {"range": [0, 30], "color": "#FF9999"},
-                    {"range": [30, 70], "color": "#FFDD99"},
-                    {"range": [70, 150], "color": "#99CC99"}
+                    {"range": [0, 30], "color": "#88DBDF"},
+                    {"range": [30, 70], "color": "#00A3AD"},
+                    {"range": [70, 150], "color": "#00303C"}
                 ],
                 "threshold": {
-                    "line": {"color": "red", "width": 4},
+                    "line": {"color": "black", "width": 4},
                     "thickness": 0.75,
                     "value": float(min_strength)
                 }
