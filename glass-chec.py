@@ -282,9 +282,7 @@ with dashboard_col2:
     st.subheader("Quick Interlayer Selector")
     
     # Create a discrete slider with 20-degree intervals
-    min_temp, max_temp = min(temp_list), max(temp_list)
-    temp_values = sorted(set([min_temp, max_temp] + list(range(min_temp, max_temp + 1, 20))))
-    quick_temp = st.select_slider("Temperature (°C):", options=temp_values, value=20 if 20 in temp_values else temp_values[0])
+    quick_temp = st.slider("Temperature (°C):", min(temp_list), max(temp_list), 20, step=20)
     
     # Load duration selector - simplified
     quick_duration_options = ["3 sec (Impact)", "10 min (Wind)", "1 day (Snow)", "1 year (Permanent)"]
