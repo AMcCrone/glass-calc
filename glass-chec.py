@@ -677,3 +677,492 @@ def generate_pdf():
     # Footer section with version information
     st.markdown("---")
     st.markdown("*Glass Design Calculator v1.0.0 | © 2025*")
+
+# =============================================================================
+# Interlayer Comparison Section
+# =============================================================================
+st.markdown("<a name='interlayer-comparison'></a>", unsafe_allow_html=True)
+st.title("Interlayer Comparison Chart")
+
+# Create a simple comparison feature
+st.subheader("Compare Interlayers")
+
+# Allow multiple interlayer selection for comparison
+compare_interlayers = st.multiselect(
+    "Select interlayers to compare:",
+    interlayer_options,
+    default=[selected_interlayer]
+)
+
+# Select comparison parameters
+col1, col2 = st.columns(2)
+with col1:
+    compare_temp = st.selectbox("Select Temperature for Comparison (°C):", temp_list)
+with col2:
+    compare_times = st.multiselect(
+        "Select Load Durations for Comparison:",
+        list(time_map.keys()),
+        default=["3 sec", "10 min", "1 day", "1 year"]
+    )
+
+if compare_interlayers and compare_times:
+    # Create a dataframe to hold comparison data
+    comparison_data = []
+    
+    # Load data for each selected interlayer
+    for interlayer in compare_interlayers:
+        try:
+            df_interlayer = pd.read_excel(excel_file, sheet_name=interlayer)
+            # Get values for the selected temperature
+            if compare_temp in df_interlayer["Temperature (°C)"].values:
+                temp_data = df_interlayer[df_interlayer["Temperature (°C)"] == compare_temp].iloc[0]
+                
+                # Extract values for each selected time
+                for time_label in compare_times:
+                    if time_label in temp_data.index:
+                        value = temp_data[time_label]
+                        # Convert to numeric, with fallback value
+                        if pd.isna(value) or value == "No Data":
+                            value = 0.05
+                        else:
+                            value = float(value)
+                            
+                        comparison_data.append({
+                            "Interlayer": interlayer,
+                            "Load Duration": time_label,
+                            "E(MPa)": value
+                        })
+        except Exception as e:
+            st.error(f"Error loading data for {interlayer}: {e}")
+    
+    # Create dataframe from collected data
+    if comparison_data:
+        df_comparison = pd.DataFrame(comparison_data)
+        
+        # Plot comparison bar chart
+        fig = go.Figure()
+        
+        # Add bars for each interlayer and load duration
+        for time_label in compare_times:
+            df_subset = df_comparison[df_comparison["Load Duration"] == time_label]
+            
+            if not df_subset.empty:
+                fig.add_trace(go.Bar(
+                    x=df_subset["Interlayer"],
+                    y=df_subset["E(MPa)"],
+                    name=time_label,
+                    text=df_subset["E(MPa)"].round(2),
+                    textposition='auto',
+                ))
+        
+        # Update layout
+        fig.update_layout(
+            title=f"Interlayer Comparison at {compare_temp}°C",
+            xaxis_title="Interlayer Type",
+            yaxis_title="Young's Modulus E(MPa)",
+            barmode='group',
+            legend_title="Load Duration"
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Add a summary table
+        st.subheader("Comparison Data Table")
+        
+        # Pivot the data for better display
+        df_pivot = df_comparison.pivot(
+            index="Interlayer", 
+            columns="Load Duration", 
+            values="E(MPa)"
+        ).reset_index()
+        
+        # Format the data to 2 decimal places
+        for col in df_pivot.columns:
+            if col != "Interlayer":
+                df_pivot[col] = df_pivot[col].round(2)
+                
+        st.dataframe(df_pivot)
+    else:
+        st.warning("No comparison data available for the selected parameters.")
+
+# =============================================================================
+# Design Recommendations Section
+# =============================================================================
+st.markdown("<a name='design-recommendations'></a>", unsafe_allow_html=True)
+st.title("Design Recommendations")
+
+# Get the selected load durations for recommendations
+if selected_loads:
+    st.subheader("Recommendations Based on Selected Load Cases")
+    
+    # Filter the results dataframe for selected loads
+    selected_results = df_results[df_results["Load Type"].isin(selected_loads)]
+    
+    # Convert to numeric if needed
+    selected_results[strength_col] = pd.to_numeric(selected_results[strength_col], errors='coerce')
+    
+    # Find the minimum design strength among selected loads
+    min_strength = selected_results[strength_col].min()
+    
+    # Display the controlling load case
+    controlling_load = selected_results.loc[selected_results[strength_col].idxmin(), "Load Type"]
+    st.markdown(f"**Controlling Load Case:** {controlling_load}")
+    st.markdown(f"**Minimum Design Strength:** {min_strength:.2f} MPa")
+    
+    # Create expandable sections for different recommendations
+    with st.expander("Glass Thickness Recommendations"):
+        st.markdown("""
+        ### Glass Thickness Selection Guide
+        
+        For a preliminary estimation of required glass thickness, consider the following:
+        
+        1. **For rectangular glass panels with 4-sided support:**
+            - Determine the maximum stress using: σ = α × q × a² / t²
+            - Where:
+                - σ = maximum stress (MPa)
+                - α = coefficient based on aspect ratio (typically 0.28-0.36)
+                - q = design load (kN/m²)
+                - a = shorter span (m)
+                - t = glass thickness (mm)
+            
+        2. **For 2-sided supported glass:**
+            - Use: σ = q × L² / (8 × t² × 10⁻⁶)
+            - Where:
+                - L = unsupported span (m)
+        
+        3. **General rule of thumb:**
+            - For basic window glazing: t ≥ a/k where k = 125-150
+            - For balustrades: t ≥ height/20 (typically 10mm minimum)
+            - For overhead glazing: Use laminated glass with minimum 6mm inner and outer plies
+        
+        Always perform a proper structural analysis for final design.
+        """)
+    
+    with st.expander("Lamination Recommendations"):
+        st.markdown(f"""
+        ### Interlayer Recommendations
+        
+        Based on your selected glass type ({fbk_choice}) and load conditions:
+        
+        1. **For standard applications (non-structural):**
+            - Standard PVB (0.38mm or 0.76mm thickness)
+            
+        2. **For structural applications:**
+            - {'SentryGlas' if min_strength > 70 else 'Structural PVB'} is recommended
+            - Minimum thickness: {1.52 if min_strength > 70 else 0.76} mm
+            
+        3. **For safety-critical applications:**
+            - {'SentryGlas' if min_strength > 50 else 'SentryGlas or Structural PVB'} is recommended
+            - Minimum thickness: 1.52 mm
+            
+        4. **For overhead glazing:**
+            - Use laminated glass with PVB interlayer
+            - Minimum interlayer thickness: 0.76 mm
+            
+        5. **For balustrades:**
+            - {'SentryGlas' if glass_category == 'prestressed' else 'Structural PVB or SentryGlas'}
+            - Minimum thickness: 1.52 mm
+        """)
+    
+    with st.expander("Testing Recommendations"):
+        st.markdown(f"""
+        ### Testing Recommendations
+        
+        For your application with {fbk_choice} glass:
+        
+        1. **Standard tests to consider:**
+            - Fragmentation test (for toughened glass)
+            - Impact resistance test (EN 12600)
+            - Post-breakage performance test (if safety critical)
+            
+        2. **Project-specific testing:**
+            {"- Full-scale mock-up testing recommended" if min_strength < 60 else "- Consider prototype testing for validation"}
+            {"- Residual capacity testing recommended" if "balustrade" in [l.lower() for l in selected_loads] else ""}
+            
+        3. **Quality assurance:**
+            - Visual inspection for inclusions, edge damage
+            - Heat soak testing for toughened glass (recommended)
+            - Roller wave distortion measurement
+        """)
+    
+    # Add application-specific guidance based on selected loads
+    special_applications = []
+    for load_type in selected_loads:
+        if "balustrade" in load_type.lower():
+            special_applications.append("balustrade")
+        elif "snow" in load_type.lower():
+            special_applications.append("overhead")
+        elif "wind" in load_type.lower():
+            special_applications.append("facade")
+        elif "blast" in load_type.lower():
+            special_applications.append("blast")
+    
+    if special_applications:
+        with st.expander("Application-Specific Guidance"):
+            for app in set(special_applications):
+                if app == "balustrade":
+                    st.markdown("""
+                    ### Balustrade Design Guidance
+                    
+                    - **Standards to follow:** BS 6180, BS 6399-1
+                    - **Minimum thickness:** 10mm toughened or 11.5mm laminated (typically)
+                    - **Edge treatment:** Polished edges recommended
+                    - **Fixings:** Consider using countersunk bolts or channel systems
+                    - **Post-breakage behavior:** Use laminated glass with stiff interlayer for safety
+                    """)
+                
+                elif app == "overhead":
+                    st.markdown("""
+                    ### Overhead Glazing Guidance
+                    
+                    - **Standards to follow:** BS 5516, CWCT TN66
+                    - **Glass type:** Laminated only, with both plies capable of carrying full load
+                    - **Minimum thickness:** 6mm per ply typically
+                    - **Interlayer:** Minimum 0.76mm PVB
+                    - **Support:** 4-sided support recommended
+                    - **Slope:** Minimum 15° recommended to promote self-cleaning
+                    """)
+                
+                elif app == "facade":
+                    st.markdown("""
+                    ### Facade Glazing Guidance
+                    
+                    - **Standards to follow:** BS EN 13830, CWCT
+                    - **Maximum deflection:** Height/60 or span/125, typically
+                    - **Edge clearance:** Minimum 15mm
+                    - **Fixing detail:** Consider thermal expansion
+                    - **Insulated glass units:** Consider differential pressure and climate loads
+                    """)
+                
+                elif app == "blast":
+                    st.markdown("""
+                    ### Blast Resistant Glazing Guidance
+                    
+                    - **Standards to follow:** ISO 16933, GSA-TS01
+                    - **Glass type:** Laminated glass with minimum 7.5mm PVB or 3mm SGP
+                    - **Frame design:** Critical for overall performance
+                    - **Specialist design:** Consult blast engineering specialist
+                    - **Testing:** Full-scale testing recommended
+                    """)
+else:
+    st.info("Please select load durations in the Glass Design Strength Calculator section to receive design recommendations.")
+
+# Add navigation link back to the sidebar
+st.sidebar.markdown("""
+- [Design Recommendations](#design-recommendations)
+- [Interlayer Comparison](#interlayer-comparison)
+- [Interlayer Notes](#interlayer-notes)
+- [Appendix](#appendix)
+""", unsafe_allow_html=True)
+
+# =============================================================================
+# Dashboard Section - Summary View
+# =============================================================================
+st.markdown("<a name='dashboard'></a>", unsafe_allow_html=True)
+st.title("Glass Design Dashboard")
+
+# Create dashboard layout
+dashboard_col1, dashboard_col2 = st.columns(2)
+
+with dashboard_col1:
+    st.subheader("Current Design Parameters")
+    
+    # Create a summary card with current parameters
+    st.markdown(
+        f"""
+        <div style="padding: 15px; border-radius: 5px; border: 1px solid #ddd; background-color: #f9f9f9;">
+            <h4 style="margin-top: 0;">Glass Design</h4>
+            <p><strong>Glass Type:</strong> {fbk_choice}</p>
+            <p><strong>Standard:</strong> {standard}</p>
+            <p><strong>Edge Type:</strong> {ke_choice}</p>
+            <p><strong>Surface Profile:</strong> {ksp_choice}</p>
+            <p><strong>Selected Loads:</strong> {', '.join(selected_loads) if selected_loads else 'None'}</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Create a mini strength gauge visualization
+    if selected_loads:
+        min_strength = df_results[df_results["Load Type"].isin(selected_loads)][strength_col].min()
+        
+        # Create a gauge chart to show design strength
+        gauge = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=float(min_strength),
+            title={"text": "Min. Design Strength (MPa)"},
+            gauge={
+                "axis": {"range": [0, max(150, float(min_strength)*1.2)]},
+                "bar": {"color": "#EB8C71"},
+                "steps": [
+                    {"range": [0, 30], "color": "#FF9999"},
+                    {"range": [30, 70], "color": "#FFDD99"},
+                    {"range": [70, 150], "color": "#99CC99"}
+                ],
+                "threshold": {
+                    "line": {"color": "red", "width": 4},
+                    "thickness": 0.75,
+                    "value": float(min_strength)
+                }
+            }
+        ))
+        gauge.update_layout(height=250, margin=dict(l=10, r=10, t=50, b=10))
+        st.plotly_chart(gauge, use_container_width=True)
+
+with dashboard_col2:
+    st.subheader("Quick Interlayer Selector")
+    
+    # Temperature slider
+    quick_temp = st.slider("Temperature (°C):", min(temp_list), max(temp_list), 20)
+    
+    # Load duration selector - simplified
+    quick_duration_options = ["3 sec (Impact)", "10 min (Wind)", "1 day (Snow)", "1 year (Permanent)"]
+    quick_duration = st.selectbox("Load Duration:", quick_duration_options)
+    
+    # Map the simplified options to actual durations
+    duration_map = {
+        "3 sec (Impact)": "3 sec",
+        "10 min (Wind)": "10 min",
+        "1 day (Snow)": "1 day",
+        "1 year (Permanent)": "1 year"
+    }
+    mapped_duration = duration_map[quick_duration]
+    
+    # Create a comparison for all interlayers at this temperature and duration
+    quick_comparison_data = []
+    
+    for interlayer in interlayer_options:
+        try:
+            df_interlayer = pd.read_excel(excel_file, sheet_name=interlayer)
+            # Find closest temperature if exact match not available
+            available_temps = df_interlayer["Temperature (°C)"].values
+            closest_temp = available_temps[np.abs(available_temps - quick_temp).argmin()]
+            
+            temp_data = df_interlayer[df_interlayer["Temperature (°C)"] == closest_temp].iloc[0]
+            
+            if mapped_duration in temp_data.index:
+                value = temp_data[mapped_duration]
+                # Convert to numeric, with fallback value
+                if pd.isna(value) or value == "No Data":
+                    value = 0.05
+                else:
+                    value = float(value)
+                    
+                quick_comparison_data.append({
+                    "Interlayer": interlayer,
+                    "E(MPa)": value
+                })
+        except Exception as e:
+            st.error(f"Error loading data for {interlayer}: {e}")
+    
+    if quick_comparison_data:
+        df_quick = pd.DataFrame(quick_comparison_data)
+        df_quick = df_quick.sort_values(by="E(MPa)", ascending=False)
+        
+        # Plot horizontal bar chart
+        bar_fig = go.Figure()
+        
+        bar_fig.add_trace(go.Bar(
+            y=df_quick["Interlayer"],
+            x=df_quick["E(MPa)"],
+            orientation='h',
+            marker_color=[
+                '#1A659E' if i == 0 else  # Best option
+                '#3CAEA3' if i == 1 else  # Second best
+                '#2C8C99' if i == 2 else  # Third
+                '#7D938A' if i == 3 else  # Middle
+                '#9C8D84'                 # Others
+                for i in range(len(df_quick))
+            ],
+            text=df_quick["E(MPa)"].round(2),
+            textposition='auto',
+        ))
+        
+        bar_fig.update_layout(
+            title=f"Interlayer Stiffness at {quick_temp}°C, {quick_duration}",
+            xaxis_title="Young's Modulus E(MPa)",
+            yaxis=dict(
+                title="",
+                categoryorder='total ascending',
+            ),
+            height=300,
+            margin=dict(l=10, r=10, t=50, b=10)
+        )
+        
+        st.plotly_chart(bar_fig, use_container_width=True)
+        
+        # Add recommendation based on stiffness requirements
+        top_interlayer = df_quick.iloc[0]["Interlayer"]
+        st.markdown(
+            f"""
+            <div style="padding: 10px; border-radius: 5px; border: 1px solid #1A659E; background-color: #f0f8ff;">
+                <strong>Recommended Interlayer:</strong> {top_interlayer}
+                <br>
+                <small>Based on highest stiffness for the selected conditions</small>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    else:
+        st.warning("No comparison data available.")
+
+# Add visual UI improvements
+st.markdown("""
+<style>
+div.stButton > button {
+    background-color: #3CAEA3;
+    color: white;
+    font-weight: bold;
+}
+div.stButton > button:hover {
+    background-color: #1A659E;
+    color: white;
+}
+.reportview-container .main .block-container {
+    padding-top: 2rem;
+}
+h1, h2, h3 {
+    color: #1A659E;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Update the sidebar navigation to include the dashboard
+st.sidebar.markdown("""
+## Enhanced Navigation
+- [Dashboard](#dashboard)
+- [Glass Design Strength Calculator](#glass-design-strength-calculator)
+- [Interlayer Relaxation Modulus 3D Plot](#interlayer-relaxation-modulus-3d-plot)
+- [Interlayer Comparison](#interlayer-comparison)
+- [Design Recommendations](#design-recommendations)
+- [Documentation](#documentation)
+- [Appendix](#appendix)
+""", unsafe_allow_html=True)
+
+# Add an "About" section to the sidebar
+with st.sidebar.expander("About this Tool"):
+    st.markdown("""
+    **Glass Design Tool v1.0.0**
+    
+    This application provides engineers and architects with tools to:
+    - Calculate glass design strength based on industry standards
+    - Analyze interlayer behavior at different temperatures and load durations
+    - Compare performance of different interlayers
+    - Generate design recommendations
+    
+    Developed to assist in the structural design of glass elements in buildings.
+    
+    For professional use only. Always verify results with proper engineering analysis.
+    """)
+
+# Add a footer to the app
+st.markdown("---")
+st.markdown(
+    """
+    <div style="text-align: center; color: gray; font-size: 0.8em;">
+        Glass Design Tool v1.0.0 | © 2025 | Based on IStructE and EN 16612 standards<br>
+        <small>For educational and professional use. Always consult applicable building codes and regulations.</small>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
