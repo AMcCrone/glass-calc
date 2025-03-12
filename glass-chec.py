@@ -497,12 +497,12 @@ def generate_pdf():
     elements.append(Spacer(1, 10))
     
     # Standard Used
-    elements.append(Paragraph("Standard Used", styles['Subtitle']))
+    elements.append(Paragraph("Standard Used", styles['Heading2']))
     elements.append(Paragraph(standard, styles['Normal']))
     elements.append(Spacer(1, 10))
     
     # Input Parameters Section
-    elements.append(Paragraph("Input Parameters", styles['Subtitle']))
+    elements.append(Paragraph("Input Parameters", styles['Heading2']))
     
     # Create a table for the input parameters
     input_data = [
@@ -538,7 +538,7 @@ def generate_pdf():
     elements.append(Spacer(1, 15))
     
     # Results Section
-    elements.append(Paragraph("Design Strength Results", styles['Subtitle']))
+    elements.append(Paragraph("Design Strength Results", styles['Heading2']))
     
     # Create table data from calculation results
     results_data = [["Load Type", "k_mod", "fg;d (MPa)"]]
@@ -585,7 +585,7 @@ def generate_pdf():
     elements.append(Spacer(1, 15))
     
     # Add formula explanation
-    elements.append(Paragraph("Calculation Formula Used:", styles['Subtitle']))
+    elements.append(Paragraph("Calculation Formula Used:", styles['Heading2']))
     if glass_category == "annealed":
         formula_text = """
         For annealed glass:
@@ -624,7 +624,7 @@ def generate_pdf():
     # Add interlayer information if relevant
     if include_interlayer_info:
         elements.append(Spacer(1, 15))
-        elements.append(Paragraph("Interlayer Information", styles['Subtitle']))
+        elements.append(Paragraph("Interlayer Information", styles['Heading2']))
         
         interlayer_text = f"""
         Selected Interlayer: {interlayer_type}
@@ -637,7 +637,7 @@ def generate_pdf():
     # Add project information if available
     if project_info:
         elements.append(Spacer(1, 15))
-        elements.append(Paragraph("Project Information", styles['Subtitle']))
+        elements.append(Paragraph("Project Information", styles['Heading2']))
         elements.append(Paragraph(f"Project Name: {project_name}", styles['Normal']))
         elements.append(Paragraph(f"Project Number: {project_number}", styles['Normal']))
         elements.append(Paragraph(f"Engineer: {engineer_name}", styles['Normal']))
