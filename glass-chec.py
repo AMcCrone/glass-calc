@@ -289,14 +289,14 @@ with dashboard_col1:
             title={"text": "Min. Design Strength (MPa)"},
             gauge={
                 "axis": {"range": [0, 150]},
-                "bar": {"color": "#D3451D"},
+                "bar": {"color": "#EB8C71"},
                 "steps": [
-                    {"range": [0, 30], "color": "#88DBDF"},
-                    {"range": [30, 70], "color": "#00A3AD"},
-                    {"range": [70, 150], "color": "#00303C"}
+                    {"range": [0, 30], "color": "#E7F8F9"},
+                    {"range": [30, 70], "color": "#B8E9EC"},
+                    {"range": [70, 150], "color": "#88DBDF"}
                 ],
                 "threshold": {
-                    "line": {"color": "black", "width": 4},
+                    "line": {"color": "#D3451D", "width": 4},
                     "thickness": 0.75,
                     "value": float(min_strength)
                 }
@@ -365,11 +365,10 @@ with dashboard_col2:
             x=df_quick["E(MPa)"],
             orientation='h',
             marker_color=[
-                '#1A659E' if i == 0 else  # Best option
-                '#3CAEA3' if i == 1 else  # Second best
-                '#2C8C99' if i == 2 else  # Third
-                '#7D938A' if i == 3 else  # Middle
-                '#9C8D84'                 # Others
+                '#00303C' if i == 0 else  # Best option
+                '#00A3AD' if i == 1 else  # Second best
+                '#88DBDF' if i == 2 else  # Third
+                '#636669'                 # Others
                 for i in range(len(df_quick))
             ],
             text=df_quick["E(MPa)"].round(2),
