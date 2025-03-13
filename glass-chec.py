@@ -13,9 +13,6 @@ from docs.documentation import render_documentation
 from calculator.pdf_generator import pdf_download_button
 from utils.helpers import add_sidebar_navigation
 
-# --- Authentication ---
-ensure_authenticated()  # This function calls check_password and stops if not logged in
-
 # --- Main App Layout ---
 st.title("Glass Design Tool")
 add_sidebar_navigation()  # Render sidebar links
