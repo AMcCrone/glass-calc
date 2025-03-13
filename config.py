@@ -107,3 +107,11 @@ kmod_options = {
 }
 
 excel_file = "data/Interlayer_E(t)_Database.xlsx"
+
+interlayer_options = [
+        "SentryGlas", 
+        "SentryGlas Xtra", 
+        "Trosifol Clear - Ultra Clear", 
+        "Trosifol Extra Stiff", 
+        "Trosifol SC Monolayer"
+    ]
