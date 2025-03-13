@@ -1,6 +1,15 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objs as go
+from config import (
+    fbk_options,
+    ksp_options,
+    ksp_prime_options,
+    kv_options,
+    ke_options,
+    f_gk_value,
+    kmod_options
+)
 
 def render_interlayer_comparison():
     """Render the Interlayer Comparison section of the dashboard."""
