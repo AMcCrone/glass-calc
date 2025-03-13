@@ -30,6 +30,8 @@ def render_calculator():
         ["IStructE Structural Use of Glass in Buildings", "EN 16612"],
         help="Choose the applicable standard for your design calculation."
     )
+    # Save to session state
+    st.session_state["standard"] = standard
 
     # --- Input Parameters ---
     st.subheader("Input Parameters")
@@ -40,6 +42,9 @@ def render_calculator():
         list(fbk_options.keys()),
         help="Select the characteristic bending strength option."
     )
+    # Save to session state
+    st.session_state["fbk_choice"] = fbk_choice
+    
     fbk_value = fbk_options[fbk_choice]["value"]
     glass_category = fbk_options[fbk_choice]["category"]
 
@@ -48,6 +53,9 @@ def render_calculator():
         "Glass surface profile factor $$k_{sp}$$",
         list(ksp_options.keys())
     )
+    # Save to session state
+    st.session_state["ksp_choice"] = ksp_choice
+    
     ksp_value = ksp_options[ksp_choice]
 
     # 3. Surface finish factor (k'_{sp})
@@ -55,6 +63,9 @@ def render_calculator():
         "Surface finish factor $$k'_{sp}$$",
         list(ksp_prime_options.keys())
     )
+    # Save to session state
+    st.session_state["ksp_prime_choice"] = ksp_prime_choice
+    
     ksp_prime_value = ksp_prime_options[ksp_prime_choice]
 
     # 4. Strengthening factor (k_{v})
@@ -62,6 +73,9 @@ def render_calculator():
         "Strengthening factor $$k_{v}$$",
         list(kv_options.keys())
     )
+    # Save to session state
+    st.session_state["kv_choice"] = kv_choice
+    
     kv_value = kv_options[kv_choice]
 
     # 5. Edge strength factor (k_{e})
@@ -70,6 +84,9 @@ def render_calculator():
         list(ke_options.keys()),
         help="Select the appropriate edge strength factor based on glass support conditions."
     )
+    # Save to session state
+    st.session_state["ke_choice"] = ke_choice
+    
     ke_value = ke_options[ke_choice]
 
     # Determine material partial safety factors based on glass type and standard.
@@ -108,6 +125,10 @@ def render_calculator():
     # Ensure the design strength column is numeric
     strength_col = "fg;d (MPa)"
     df_results[strength_col] = pd.to_numeric(df_results[strength_col], errors='coerce')
+    
+    # Save results and strength column to session state
+    st.session_state["df_results"] = df_results
+    st.session_state["strength_col"] = strength_col
 
     # --- Highlighting Selected Load Durations ---
     selected_loads = st.multiselect(
@@ -120,6 +141,9 @@ def render_calculator():
 
     # Style the DataFrame to highlight selected rows using our helper function.
     df_styled = df_results.style.apply(style_load_row, axis=1)
+
+    st.subheader("Design Strength Results")
+    st.dataframe(df_styled.hide(axis="index"), use_container_width=True)
 
     st.subheader("Design Strength Results")
     st.dataframe(df_styled.hide(axis="index"), use_container_width=True)
