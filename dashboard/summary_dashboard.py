@@ -2,6 +2,18 @@ import streamlit as st
 import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
+from config import (
+    fbk_options,
+    ksp_options,
+    ksp_prime_options,
+    kv_options,
+    ke_options,
+    f_gk_value,
+    kmod_options,
+    time_list,
+    time_map,
+    interlayer_options
+)
 
 def render_dashboard():
     """Render the Glass Design Dashboard summary view."""
