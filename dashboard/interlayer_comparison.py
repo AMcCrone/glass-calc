@@ -8,7 +8,9 @@ from config import (
     kv_options,
     ke_options,
     f_gk_value,
-    kmod_options
+    kmod_options,
+    time_list,
+    time_map
 )
 
 def render_interlayer_comparison():
