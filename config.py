@@ -105,3 +105,5 @@ kmod_options = {
     "3 months – Snow long term": 0.41,
     "50 years – Permanent": 0.29,
 }
+
+excel_file = "data/Interlayer_E(t)_Database.xlsx"
