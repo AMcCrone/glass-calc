@@ -2,18 +2,7 @@ import streamlit as st
 import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
-from config import (
-    fbk_options,
-    ksp_options,
-    ksp_prime_options,
-    kv_options,
-    ke_options,
-    f_gk_value,
-    kmod_options,
-    time_list,
-    time_map,
-    interlayer_options
-)
+from config import interlayer_options, excel_file
 
 def render_dashboard():
     """Render the Glass Design Dashboard summary view."""
@@ -86,15 +75,22 @@ def render_dashboard():
     with dashboard_col2:
         st.subheader("Quick Interlayer Selector")
 
-        # Get values from session state
+        # Get selected_interlayer from session state or set a default if none exists
         selected_interlayer = st.session_state.get("selected_interlayer", "")
-        excel_file = st.session_state.get("excel_file", "")
+        if not selected_interlayer and interlayer_options:
+            selected_interlayer = interlayer_options[0]  # Default to first option
+            st.session_state["selected_interlayer"] = selected_interlayer
+
+        # Use excel_file from config.py directly, not from session state
+        # Make sure it's initialized in session state for other functions
+        if "excel_file" not in st.session_state:
+            st.session_state["excel_file"] = excel_file
 
         # Attempt to load the selected interlayer sheet.
         try:
             df = pd.read_excel(excel_file, sheet_name=selected_interlayer)
         except Exception as e:
-            st.error(f"Error loading Excel file for {selected_interlayer}: {e}")
+            st.error(f"Error loading Excel file for {selected_interlayer}: {str(e)}")
             st.stop()
 
         # Extract unique temperature values from the data.
@@ -102,8 +98,9 @@ def render_dashboard():
             st.error("Temperature data not found in the Excel file.")
             st.stop()
         temp_list = sorted(df["Temperature (°C)"].unique())
-
-        interlayer_options = st.session_state.get("interlayer_options", [])
+        
+        # Store temp_list in session state for other functions
+        st.session_state["temp_list"] = temp_list
 
         # Create a discrete slider with 20-degree intervals
         min_temp, max_temp = min(temp_list), max(temp_list)
@@ -123,10 +120,13 @@ def render_dashboard():
         }
         mapped_duration = duration_map[quick_duration]
 
+        # Store the duration map in session state for other functions
+        st.session_state["time_map"] = duration_map
+
         # Create a comparison for all interlayers at this temperature and duration
         quick_comparison_data = []
 
-        if excel_file and interlayer_options:
+        if interlayer_options:
             for interlayer in interlayer_options:
                 try:
                     df_interlayer = pd.read_excel(excel_file, sheet_name=interlayer)
@@ -149,7 +149,7 @@ def render_dashboard():
                             "E(MPa)": value
                         })
                 except Exception as e:
-                    st.error(f"Error loading data for {interlayer}: {e}")
+                    st.error(f"Error loading data for {interlayer}: {str(e)}")
 
         if quick_comparison_data:
             df_quick = pd.DataFrame(quick_comparison_data)
