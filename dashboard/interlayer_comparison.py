@@ -10,7 +10,8 @@ from config import (
     f_gk_value,
     kmod_options,
     time_list,
-    time_map
+    time_map,
+    interlayer_options
 )
 
 def render_interlayer_comparison():
@@ -20,13 +21,6 @@ def render_interlayer_comparison():
 
     # Create a simple comparison feature
     st.subheader("Compare Interlayers")
-
-    # Get values from session state
-    interlayer_options = st.session_state.get("interlayer_options", [])
-    selected_interlayer = st.session_state.get("selected_interlayer", "")
-    temp_list = st.session_state.get("temp_list", [])
-    time_map = st.session_state.get("time_map", {})
-    excel_file = st.session_state.get("excel_file", "")
     
     # Allow multiple interlayer selection for comparison
     compare_interlayers = st.multiselect(
