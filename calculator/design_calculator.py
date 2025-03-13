@@ -144,6 +144,3 @@ def render_calculator():
 
     st.subheader("Design Strength Results")
     st.dataframe(df_styled.hide(axis="index"), use_container_width=True)
-
-    st.subheader("Design Strength Results")
-    st.dataframe(df_styled.hide(axis="index"), use_container_width=True)
