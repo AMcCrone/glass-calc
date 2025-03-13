@@ -16,8 +16,18 @@ def render_interlayer_comparison():
     if "selected_interlayer" not in st.session_state and interlayer_options:
         st.session_state["selected_interlayer"] = interlayer_options[0]  # Default to first option
     
-    if "temp_list" not in st.session_state:
-        st.session_state["temp_list"] = temp_list
+    # Attempt to load the selected interlayer sheet.
+    try:
+        df = pd.read_excel(excel_file, sheet_name=selected_interlayer)
+    except Exception as e:
+        st.error(f"Error loading Excel file for {selected_interlayer}: {e}")
+        st.stop()
+    
+    # Extract unique temperature values from the data.
+    if "Temperature (°C)" not in df.columns:
+        st.error("Temperature data not found in the Excel file.")
+        st.stop()
+    temp_list = sorted(df["Temperature (°C)"].unique())
         
     # Access the variables from session state
     selected_interlayer = st.session_state["selected_interlayer"]
