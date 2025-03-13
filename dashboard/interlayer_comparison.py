@@ -2,16 +2,10 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objs as go
 from config import (
-    fbk_options,
-    ksp_options,
-    ksp_prime_options,
-    kv_options,
-    ke_options,
-    f_gk_value,
-    kmod_options,
     time_list,
-    time_map,
-    interlayer_options
+    interlayer_options,
+    excel_file,
+    temp_list
 )
 
 def render_interlayer_comparison():
@@ -20,36 +14,14 @@ def render_interlayer_comparison():
     st.title("Interlayer Comparison Chart")
 
     # Initialize session state variables if they don't exist
-    if "selected_interlayer" not in st.session_state:
-        st.session_state["selected_interlayer"] = ""
+    if "selected_interlayer" not in st.session_state and interlayer_options:
+        st.session_state["selected_interlayer"] = interlayer_options[0]  # Default to first option
     
     if "temp_list" not in st.session_state:
-        st.session_state["temp_list"] = [-20, 0, 20, 40, 60, 80]
-    
-    # Allow user to upload Excel file if not already uploaded
-    if "excel_file" not in st.session_state:
-        st.session_state["excel_file"] = None
+        st.session_state["temp_list"] = temp_list
         
-    excel_file = st.session_state["excel_file"]
-    
-    # File uploader if no file is loaded yet
-    if not excel_file:
-        uploaded_file = st.file_uploader("Upload Interlayer Data Excel File", type=["xlsx", "xls"])
-        if uploaded_file is not None:
-            st.session_state["excel_file"] = uploaded_file
-            excel_file = uploaded_file
-    
     # Access the variables from session state
     selected_interlayer = st.session_state["selected_interlayer"]
-    temp_list = st.session_state["temp_list"]
-    
-    # If no interlayer is selected, allow selecting one first
-    if not selected_interlayer and interlayer_options:
-        selected_interlayer = st.selectbox(
-            "Select default interlayer:",
-            interlayer_options
-        )
-        st.session_state["selected_interlayer"] = selected_interlayer
     
     # Create a simple comparison feature
     st.subheader("Compare Interlayers")
@@ -73,11 +45,6 @@ def render_interlayer_comparison():
         )
 
     if compare_interlayers and compare_times:
-        # Check if excel file is loaded
-        if not excel_file:
-            st.warning("Please upload an Excel file with interlayer data first.")
-            return
-            
         # Create a dataframe to hold comparison data
         comparison_data = []
         
