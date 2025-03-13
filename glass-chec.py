@@ -27,13 +27,12 @@ pdf_download_button()  # Button for PDF generation
 # Update the sidebar navigation to include the dashboard
 st.sidebar.markdown("""
 ## Navigation
-- [Dashboard](#dashboard)
 - [Glass Design Strength Calculator](#glass-design-strength-calculator)
-- [Interlayer Relaxation Modulus 3D Plot](#interlayer-relaxation-modulus-3d-plot)
+- [Interlayer Elastic Modulus 3D Plot](#interlayer-relaxation-modulus-3d-plot)
 - [Interlayer Comparison](#interlayer-comparison)
-- [Design Recommendations](#design-recommendations)
+- [Dashboard](#dashboard)
 - [Documentation](#documentation)
-- [Appendix](#appendix)
+- [Appendix Tables](#appendix)
 """, unsafe_allow_html=True)
 
 # Add an "About" section to the sidebar
