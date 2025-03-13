@@ -4,8 +4,7 @@ import plotly.graph_objs as go
 from config import (
     time_list,
     interlayer_options,
-    excel_file,
-    temp_list
+    excel_file
 )
 
 def render_interlayer_comparison():
