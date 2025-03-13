@@ -8,12 +8,6 @@ parameters for the glass strength calculations.
 """
 
 # -----------------------------
-# Authentication
-# -----------------------------
-# Set the password used for authentication.
-PASSWORD = "demo"  # Change this to a secure value for production
-
-# -----------------------------
 # Time Duration Mappings
 # -----------------------------
 # Each tuple contains a label and its equivalent in seconds.
