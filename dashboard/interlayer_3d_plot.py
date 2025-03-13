@@ -10,20 +10,11 @@ highlight a specific data point based on user-selected temperature and load dura
 import streamlit as st
 import pandas as pd
 import plotly.graph_objs as go
-from config import time_map, tickvals, ticktext  # Assumes these are defined in config.py
+from config import time_map, tickvals, ticktext interlayer_options  # Assumes these are defined in config.py
 
 def render_3d_plot():
     st.markdown("<a name='interlayer-3d-plot'></a>", unsafe_allow_html=True)
     st.title("Interlayer Modulus, E(t), 3D Plot")
-
-    # Define interlayer options. You can also move this to config.py if needed.
-    interlayer_options = [
-        "SentryGlas", 
-        "SentryGlas Xtra", 
-        "Trosifol Clear - Ultra Clear", 
-        "Trosifol Extra Stiff", 
-        "Trosifol SC Monolayer"
-    ]
     
     # Define the Excel file path. In this repo, it's stored in the 'data' folder.
     excel_file = "data/Interlayer_E(t)_Database.xlsx"
