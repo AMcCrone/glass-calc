@@ -87,9 +87,23 @@ def render_dashboard():
         st.subheader("Quick Interlayer Selector")
         
         # Get values from session state
-        temp_list = st.session_state.get("temp_list", [-20, 0, 20, 40, 60, 80])
-        interlayer_options = st.session_state.get("interlayer_options", [])
+
         excel_file = st.session_state.get("excel_file", "")
+        
+        # Attempt to load the selected interlayer sheet.
+        try:
+            df = pd.read_excel(excel_file, sheet_name=selected_interlayer)
+        except Exception as e:
+            st.error(f"Error loading Excel file for {selected_interlayer}: {e}")
+            st.stop()
+        
+        # Extract unique temperature values from the data.
+        if "Temperature (°C)" not in df.columns:
+            st.error("Temperature data not found in the Excel file.")
+            st.stop()
+        temp_list = sorted(df["Temperature (°C)"].unique())
+        
+        interlayer_options = st.session_state.get("interlayer_options", [])
         
         # Create a discrete slider with 20-degree intervals
         min_temp, max_temp = min(temp_list), max(temp_list)
