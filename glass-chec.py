@@ -13,9 +13,6 @@ from docs.documentation import render_documentation
 from calculator.pdf_generator import pdf_download_button
 from utils.helpers import add_sidebar_navigation
 
-# --- Main App Layout ---
-st.title("Glass Design Tool")
-
 # Render sections (you can organize layout with tabs or sections)
 render_calculator()
 render_3d_plot()
