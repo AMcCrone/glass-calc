@@ -50,8 +50,8 @@ def render_interlayer_comparison():
     with col2:
         compare_times = st.multiselect(
             "Select Load Durations for Comparison:",
-            list(time_map.keys()) if time_map else ["3 sec", "3 min", "10 min", "1 day", "1 year"],
-            default=["3 sec", "3 min", "10 min", "1 day", "1 year"]
+            ["3 sec", "3 min", "10 min", "1 day", "1 year"],
+            default=["3 sec", "3 min", "10 min"]
         )
 
     if compare_interlayers and compare_times:
