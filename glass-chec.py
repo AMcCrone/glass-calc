@@ -15,7 +15,6 @@ from utils.helpers import add_sidebar_navigation
 
 # --- Main App Layout ---
 st.title("Glass Design Tool")
-add_sidebar_navigation()  # Render sidebar links
 
 # Render sections (you can organize layout with tabs or sections)
 render_calculator()
