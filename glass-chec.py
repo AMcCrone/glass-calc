@@ -1,7 +1,10 @@
 # glass-chec.py
 import streamlit as st
-from auth import check_password, ensure_authenticated
-from config import PASSWORD  # other common variables can be imported here
+
+# Import auth first so it handles authentication on load.
+import auth
+
+from config import *
 from calculator.design_calculator import render_calculator
 from dashboard.summary_dashboard import render_dashboard
 from dashboard.interlayer_3d_plot import render_3d_plot
