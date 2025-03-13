@@ -18,9 +18,9 @@ st.title("Glass Design Tool")
 
 # Render sections (you can organize layout with tabs or sections)
 render_calculator()
-render_dashboard()
 render_3d_plot()
 render_interlayer_comparison()
+render_dashboard()
 render_documentation()
 pdf_download_button()  # Button for PDF generation
 
