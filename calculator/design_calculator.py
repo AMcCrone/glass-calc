@@ -27,7 +27,7 @@ def render_calculator():
     # --- Standard Selection ---
     standard = st.selectbox(
         "Select the Standard",
-        ["IStructE Structural Use of Glass in Buildings", "EN 16612"],
+        ["EN 16612", "IStructE Structural Use of Glass in Buildings"],
         help="Choose the applicable standard for your design calculation."
     )
     # Save to session state
