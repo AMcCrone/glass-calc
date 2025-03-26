@@ -167,6 +167,16 @@ $$
     
     ke_value = ke_options[ke_choice]
 
+    # Determine material partial safety factors based on glass type and standard.
+    if glass_category == "annealed":
+        gamma_MA = 1.6 if standard == "IStructE Structural Use of Glass in Buildings" else 1.8
+        gamma_MV = None
+    else:
+        gamma_MA = 1.6 if standard == "IStructE Structural Use of Glass in Buildings" else 1.8
+        gamma_MV = 1.2
+
+    # --- Calculation of Design Strength ---
+    st.subheader("Design Strength Calculation")
     # k_mod Clarification Expander
     with st.expander("k_mod Clarification", expanded=False):
         st.markdown(r"""
@@ -206,17 +216,6 @@ $$
         - Always consider all potential load combinations
         - The highest $k_{mod}$ represents the most critical loading condition
         """)
-
-    # Determine material partial safety factors based on glass type and standard.
-    if glass_category == "annealed":
-        gamma_MA = 1.6 if standard == "IStructE Structural Use of Glass in Buildings" else 1.8
-        gamma_MV = None
-    else:
-        gamma_MA = 1.6 if standard == "IStructE Structural Use of Glass in Buildings" else 1.8
-        gamma_MV = 1.2
-
-    # --- Calculation of Design Strength ---
-    st.subheader("Design Strength Calculation")
     results = []
     for load_type, kmod_value in kmod_options.items():
         if glass_category == "annealed":
