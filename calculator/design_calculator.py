@@ -167,15 +167,45 @@ $$
     
     ke_value = ke_options[ke_choice]
 
-    # Load Duration Factors (k_mod) Explanation
-    st.info("""
-    Load Duration Factors (k_mod) Notes:
-    - Values represent modification factors for different load durations
-    - Generally, k_mod = 0.663 * t^(-1/16), where t is load duration in hours
-    - k_mod = 0.74 based on 10-minute cumulative equivalent duration (storm conditions)
-    - For combined loads, use the highest k_mod value
-    - Example: Wind (k_mod = 0.74), Snow and self-weight (k_mod = 0.48)
-    """)
+    # k_mod Clarification Expander
+    with st.expander("k_mod Clarification", expanded=False):
+        st.markdown(r"""
+        **Load Duration Factor (k_mod) Detailed Explanation**
+        
+        **Note 4: Load Duration Factor Origins**
+        - Values in Table "4. Factor for load duration" are from IStructE
+        - Similar values found in BS 16612
+        - General formula for load duration factor:
+        
+        $$k_{mod} = 0.663 \cdot t^{-1/16}$$
+        
+        Where:
+        - $t$ is the load duration in hours
+        
+        **Note 5: Storm Condition Reference**
+        - The value $k_{mod} = 0.74$ is based on a cumulative equivalent duration of 10 minutes
+        - Considered representative of a storm effect lasting several hours
+        - Higher $k_{mod}$ values for wind can be considered but must be justified
+        - *Currently, no definitive guide exists for such modifications*
+        
+        **Note 6: Load Combination Considerations (EN 16612)**
+        - For loads with different durations, use the **highest** $k_{mod}$ value
+        - Selection process for $k_{mod}$:
+          1. Identify $k_{mod}$ for each load type
+          2. Choose the highest value for determining glass resistance
+        
+        **Example Load Combinations:**
+        - Wind, snow, and self-weight:
+          - $k_{mod} = 0.74$ (or 1.0) for combined scenario
+        - Snow and self-weight:
+          - $k_{mod} = 0.48$
+        - Self-weight only:
+          - $k_{mod} = 0.29$
+        
+        **Important Considerations:**
+        - Always consider all potential load combinations
+        - The highest $k_{mod}$ represents the most critical loading condition
+        """)
 
     # Determine material partial safety factors based on glass type and standard.
     if glass_category == "annealed":
@@ -236,12 +266,3 @@ $$
 
     st.subheader("Design Strength Results")
     st.dataframe(df_styled.hide(axis="index"), use_container_width=True)
-
-    # Additional explanation of design strength
-    st.info("""
-    Design Strength (fg;d) Explanation:
-    - Calculated design strength considering multiple modification factors
-    - Accounts for glass type, load duration, surface conditions, and support
-    - Lower values indicate more conservative design
-    - Helps ensure structural safety and performance
-    """)
