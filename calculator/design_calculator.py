@@ -24,6 +24,50 @@ def render_calculator():
     st.title("Glass Design Strength Calculator")
     st.markdown("Precision engineering for glass structural design")
 
+    # Standard Comparison Dropdown
+    with st.expander("Which standard to use and their differences", expanded=False):
+        st.markdown(
+            r"""
+**Standard Selection Guidance:**
+Technical Recommendation (TT) suggests limiting the EN 16612 standard for calculating the lateral load resistance of linearly supported glazed elements used as infill panels in a class of consequences lower than those covered in EN 1990. 
+
+**Recommended Usage:**
+- For all structural glazing elements (floor plates, walls, beams, columns, or glass panels with point fixings), use the **IStructE Book** standard.
+- EN 16612 is more suitable for simpler, non-critical glazing applications.
+
+**Calculation Equations:**
+For **annealed glass**:  
+$$
+f_{g;d} = \frac{k_e \; k_{mod} \; k_{sp} \; f_{g;k}}{\gamma_{M;A}}
+$$
+For **pre-stressed glass (EN 16612)**:  
+$$
+f_{g;d} = \frac{k_e \; k_{mod} \; k_{sp} \; f_{g;k}}{\gamma_{M;A}} + \frac{k_v \,(f_{b;k} - f_{g;k})}{\gamma_{M;v}}
+$$
+For **pre-stressed glass (IStructE)**:  
+$$
+f_{g;d} = \left(\frac{k_{mod} \; k_{sp} \; f_{g;k}}{\gamma_{M;A}} + \frac{k_v \,(f_{b;k} - f_{g;k})}{\gamma_{M;v}}\right) k_e
+$$
+
+**Parameters:**
+- $$ f_{b;k} $$: Characteristic bending strength (N/mm²)  
+- $$ k_{sp} $$: Glass surface profile factor  
+- $$ k'_{sp} $$: Surface finish factor (None = 1, Sand blasted = 0.6, Acid etched = 1)  
+- $$ k_{v} $$: Strengthening factor  
+- $$ k_{e} $$: Edge strength factor  
+- $$ k_{mod} $$: Load duration factor  
+- $$ f_{g;k} $$: Design value for glass (fixed at 45 N/mm²)
+
+**Material Partial Safety Factors:**
+- For annealed glass:  
+  - **IStructE**: $$ \gamma_{M;A} = 1.6 $$  
+  - **EN 16612**: $$ \gamma_{M;A} = 1.8 $$
+  
+- For pre-stressed (non-annealed) glass:  
+  - $$ \gamma_{M;A} $$ as above and $$ \gamma_{M;v} = 1.2 $$
+            """
+        )
+
     # --- Standard Selection ---
     standard = st.selectbox(
         "Select the Standard",
@@ -32,6 +76,7 @@ def render_calculator():
         Choose the design standard for your glass structure:
         - EN 16612: European standard for glass in construction
         - IStructE: Institution of Structural Engineers' guidance for glass design
+        Refer to the 'Which standard to use and their differences' dropdown for detailed guidance.
         """
     )
     # Save to session state
