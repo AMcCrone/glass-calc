@@ -22,13 +22,17 @@ def render_calculator():
     """Render the Glass Design Strength Calculator interface and compute results."""
     st.markdown("<a name='glass-design-strength-calculator'></a>", unsafe_allow_html=True)
     st.title("Glass Design Strength Calculator")
-    st.markdown("Have a smashing time...")
+    st.markdown("Precision engineering for glass structural design")
 
     # --- Standard Selection ---
     standard = st.selectbox(
         "Select the Standard",
         ["EN 16612", "IStructE Structural Use of Glass in Buildings"],
-        help="Choose the applicable standard for your design calculation."
+        help="""
+        Choose the design standard for your glass structure:
+        - EN 16612: European standard for glass in construction
+        - IStructE: Institution of Structural Engineers' guidance for glass design
+        """
     )
     # Save to session state
     st.session_state["standard"] = standard
@@ -40,7 +44,12 @@ def render_calculator():
     fbk_choice = st.selectbox(
         "Characteristic bending strength $$f_{b;k}$$",
         list(fbk_options.keys()),
-        help="Select the characteristic bending strength option."
+        help="""
+        Characteristic bending strength represents the inherent strength of the glass:
+        - Depends on glass type (annealed, heat-strengthened, fully tempered)
+        - Typically ranges from 35-120 MPa
+        - Higher values indicate greater resistance to bending stress
+        """
     )
     # Save to session state
     st.session_state["fbk_choice"] = fbk_choice
@@ -51,7 +60,13 @@ def render_calculator():
     # 2. Glass surface profile factor (k_{sp})
     ksp_choice = st.selectbox(
         "Glass surface profile factor $$k_{sp}$$",
-        list(ksp_options.keys())
+        list(ksp_options.keys()),
+        help="""
+        Surface profile factor accounts for glass surface characteristics:
+        - Reflects the impact of surface processing on strength
+        - Values typically range from 0.5 to 1.0
+        - Heat treatment and surface conditions affect this factor
+        """
     )
     # Save to session state
     st.session_state["ksp_choice"] = ksp_choice
@@ -61,7 +76,14 @@ def render_calculator():
     # 3. Surface finish factor (k'_{sp})
     ksp_prime_choice = st.selectbox(
         "Surface finish factor $$k'_{sp}$$",
-        list(ksp_prime_options.keys())
+        list(ksp_prime_options.keys()),
+        help="""
+        Surface finish factor is a multiplier applied to k_sp:
+        - Accounts for additional surface treatments
+        - Modifies the base surface profile factor
+        - Typically ranges from 0.8 to 1.0
+        - Represents refinements in surface processing
+        """
     )
     # Save to session state
     st.session_state["ksp_prime_choice"] = ksp_prime_choice
@@ -71,7 +93,13 @@ def render_calculator():
     # 4. Strengthening factor (k_{v})
     kv_choice = st.selectbox(
         "Strengthening factor $$k_{v}$$",
-        list(kv_options.keys())
+        list(kv_options.keys()),
+        help="""
+        Strengthening factor considers additional strengthening effects:
+        - Relevant for prestressed or heat-treated glass
+        - Accounts for residual stress and strengthening techniques
+        - Typically used for non-annealed glass types
+        """
     )
     # Save to session state
     st.session_state["kv_choice"] = kv_choice
@@ -82,12 +110,27 @@ def render_calculator():
     ke_choice = st.selectbox(
         "Edge strength factor $$k_{e}$$",
         list(ke_options.keys()),
-        help="Select the appropriate edge strength factor based on glass support conditions."
+        help="""
+        Edge strength factor considers glass edge conditions:
+        - Accounts for support and edge processing
+        - Reflects potential stress concentrations at glass edges
+        - Impacts overall structural performance
+        """
     )
     # Save to session state
     st.session_state["ke_choice"] = ke_choice
     
     ke_value = ke_options[ke_choice]
+
+    # Load Duration Factors (k_mod) Explanation
+    st.info("""
+    Load Duration Factors (k_mod) Notes:
+    - Values represent modification factors for different load durations
+    - Generally, k_mod = 0.663 * t^(-1/16), where t is load duration in hours
+    - k_mod = 0.74 based on 10-minute cumulative equivalent duration (storm conditions)
+    - For combined loads, use the highest k_mod value
+    - Example: Wind (k_mod = 0.74), Snow and self-weight (k_mod = 0.48)
+    """)
 
     # Determine material partial safety factors based on glass type and standard.
     if glass_category == "annealed":
@@ -134,7 +177,11 @@ def render_calculator():
     selected_loads = st.multiselect(
         "Select load durations to highlight",
         options=list(kmod_options.keys()),
-        help="Select specific load durations to emphasize in the results table."
+        help="""
+        Choose specific load durations to emphasize in the results:
+        - Allows focused analysis of different loading scenarios
+        - Helps compare design strengths under various conditions
+        """
     )
     # Store selected loads in session state for styling
     st.session_state["selected_loads"] = selected_loads
@@ -144,3 +191,12 @@ def render_calculator():
 
     st.subheader("Design Strength Results")
     st.dataframe(df_styled.hide(axis="index"), use_container_width=True)
+
+    # Additional explanation of design strength
+    st.info("""
+    Design Strength (fg;d) Explanation:
+    - Calculated design strength considering multiple modification factors
+    - Accounts for glass type, load duration, surface conditions, and support
+    - Lower values indicate more conservative design
+    - Helps ensure structural safety and performance
+    """)
