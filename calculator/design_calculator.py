@@ -22,7 +22,6 @@ def render_calculator():
     """Render the Glass Design Strength Calculator interface and compute results."""
     st.markdown("<a name='glass-design-strength-calculator'></a>", unsafe_allow_html=True)
     st.title("Glass Design Strength Calculator")
-    st.markdown("Precision engineering for glass structural design")
 
     # Standard Comparison Dropdown
     with st.expander("Which standard to use and their differences", expanded=False):
